@@ -6,7 +6,7 @@
     let logo=brand.querySelector('.bac-header-logo');
     if(!logo){
       logo=document.createElement('img'); logo.className='bac-header-logo';
-      logo.src='logo-header-ba.png?v=20260825k'; logo.alt='Brain Academy by Ruangguru';
+      logo.src='logo-header-ba.png?v=20260825l'; logo.alt='Brain Academy by Ruangguru';
       brand.prepend(logo);
     }
     let title=brand.querySelector('.brand-title');
@@ -51,10 +51,10 @@
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(applyStatic,100));else setTimeout(applyStatic,100);
   const st=document.createElement('style');
   st.textContent=`
-    .brand{text-align:left;padding-bottom:18px}
-    .bac-header-logo{display:block;width:180px;max-width:100%;height:auto;object-fit:contain;object-position:left;margin:0 0 14px 0}
-    .brand-title{font-size:14px;font-weight:800;line-height:1.35;color:#fff;letter-spacing:.1px}
-    .brand-subtitle{font-size:12px;line-height:1.55;color:#fff;margin-top:3px}
+    .brand{text-align:left;padding-bottom:10px !important;height:auto !important;min-height:0 !important;margin-bottom:8px !important;gap:0 !important}
+    .bac-header-logo{display:block;width:150px;max-width:100%;height:auto;object-fit:contain;object-position:left;margin:0 0 8px 0 !important}
+    .brand-title{font-size:14px;font-weight:800;line-height:1.25;color:#fff;letter-spacing:.1px;margin:0 !important}
+    .brand-subtitle{font-size:12px;line-height:1.45;color:#fff;margin-top:2px !important}
     .kpi-total-students{border:2px solid #2563eb;background:#eff6ff}
   `;
   document.head.appendChild(st);
