@@ -1,5 +1,10 @@
 /* Dashboard loader */
 (function(){
+  const logoFix = document.createElement('script');
+  logoFix.src = 'js/logo-fix.js?v=20260825f';
+  logoFix.onerror = function(e){ console.error('Gagal memuat logo-fix.js', e); };
+  document.head.appendChild(logoFix);
+
   const original = document.createElement('script');
   original.src = 'app-original.js?v=20260825e';
   original.onload = function(){
