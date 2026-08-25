@@ -10,11 +10,28 @@
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>
-        Dashboard TKA & UTBK
-    </title>
+    <title>Student Analytics — TKA & UTBK</title>
 
-    <!-- CSS UTAMA -->
+    <!-- Google Font: Inter -->
+
+    <link
+        rel="preconnect"
+        href="https://fonts.googleapis.com"
+    >
+
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
+
+    <!-- Dashboard CSS -->
+
     <link
         rel="stylesheet"
         href="css/style.css"
@@ -56,11 +73,13 @@
                 🏠 Overview
             </button>
 
+
             <button
                 data-page="tka"
             >
                 🎯 TKA
             </button>
+
 
             <button
                 data-page="utbk"
@@ -68,17 +87,20 @@
                 🚀 UTBK
             </button>
 
+
             <button
                 data-page="students"
             >
                 👥 Siswa
             </button>
 
+
             <button
                 data-page="ranking"
             >
                 🏆 Ranking
             </button>
+
 
             <button
                 data-page="intervention"
@@ -93,294 +115,654 @@
 
 
     <!-- =====================================
-         MAIN CONTENT
+         MAIN
     ====================================== -->
 
     <main class="main">
 
 
-        <!-- TOPBAR -->
+        <!-- =================================
+             OVERVIEW PAGE
+        ================================== -->
 
-        <div class="topbar">
+        <section
+            id="page-overview"
+            class="page"
+        >
 
-            <div>
+            <div class="topbar">
 
-                <h2>
-                    Overview
-                </h2>
+                <div>
+
+                    <h2>
+                        Overview
+                    </h2>
+
+                    <p>
+                        Analisis performa siswa TKA & UTBK
+                    </p>
+
+                </div>
+
+
+                <select
+                    id="testSelector"
+                    class="test-selector"
+                >
+
+                    <option value="TKA001">
+                        TO TKA 1
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div
+                id="errorBox"
+                class="error"
+                style="display:none;"
+            ></div>
+
+
+
+            <!-- KPI -->
+
+            <section class="kpi-grid">
+
+
+                <div class="card">
+
+                    <div class="kpi-label">
+                        Total Siswa
+                    </div>
+
+                    <div
+                        class="kpi-value"
+                        id="totalStudents"
+                    >
+                        —
+                    </div>
+
+                    <div class="kpi-change">
+                        Master siswa
+                    </div>
+
+                </div>
+
+
+
+                <div class="card">
+
+                    <div class="kpi-label">
+                        Peserta TO
+                    </div>
+
+                    <div
+                        class="kpi-value"
+                        id="participants"
+                    >
+                        —
+                    </div>
+
+                    <div
+                        class="kpi-change"
+                        id="participantNote"
+                    >
+                        TO TKA 1
+                    </div>
+
+                </div>
+
+
+
+                <div class="card">
+
+                    <div class="kpi-label">
+                        Belum Ikut
+                    </div>
+
+                    <div
+                        class="kpi-value"
+                        id="notParticipants"
+                    >
+                        —
+                    </div>
+
+                    <div class="kpi-change">
+                        Belum ada nilai
+                    </div>
+
+                </div>
+
+
+
+                <div class="card">
+
+                    <div class="kpi-label">
+                        Rata-rata Skor
+                    </div>
+
+                    <div
+                        class="kpi-value"
+                        id="averageScore"
+                    >
+                        —
+                    </div>
+
+                    <div class="kpi-change">
+                        Seluruh nilai tersedia
+                    </div>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- CHART + INTERVENTION -->
+
+            <section class="content-grid">
+
+
+                <div class="card">
+
+                    <div class="card-title">
+                        Top Performance
+                    </div>
+
+
+                    <div
+                        id="chart"
+                        class="chart"
+                    >
+
+                        <div class="loading">
+                            Memuat data...
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+
+                <div class="card">
+
+                    <div class="card-title">
+                        Perlu Perhatian
+                    </div>
+
+
+                    <div
+                        id="intervention"
+                        class="student-list"
+                    >
+
+                        <div class="loading">
+                            Memuat data...
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+            </section>
+
+
+
+            <!-- RANKING -->
+
+            <section class="card">
+
+
+                <div class="card-title">
+                    Top Performance — TO TKA 1
+                </div>
+
+
+                <div class="table-wrapper">
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+
+                                <th>#</th>
+
+                                <th>Siswa</th>
+
+                                <th>Sekolah</th>
+
+                                <th>Rata-rata</th>
+
+                                <th>Subtes</th>
+
+                                <th>Status</th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody id="rankingTable">
+
+                            <tr>
+
+                                <td
+                                    colspan="6"
+                                    class="loading"
+                                >
+                                    Memuat data...
+                                </td>
+
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </section>
+
+        </section>
+
+
+
+        <!-- =================================
+             TKA PAGE
+        ================================== -->
+
+        <section
+            id="page-tka"
+            class="page"
+            style="display:none;"
+        >
+
+            <div class="topbar">
+
+                <div>
+
+                    <h2>
+                        🎯 TKA
+                    </h2>
+
+                    <p>
+                        Analisis performa TKA berdasarkan subtes
+                    </p>
+
+                </div>
+
+
+                <select
+                    id="tkaTestSelector"
+                    class="test-selector"
+                >
+
+                    <option value="TKA001">
+                        TO TKA 1
+                    </option>
+
+                </select>
+
+            </div>
+
+
+
+            <!-- TKA KPI -->
+
+            <section class="kpi-grid">
+
+
+                <div class="card">
+
+                    <div class="kpi-label">
+                        Peserta
+                    </div>
+
+                    <div
+                        class="kpi-value"
+                        id="tkaParticipants"
+                    >
+                        —
+                    </div>
+
+                    <div class="kpi-change">
+                        Siswa dengan nilai
+                    </div>
+
+                </div>
+
+
+
+                <div class="card">
+
+                    <div class="kpi-label">
+                        Rata-rata
+                    </div>
+
+                    <div
+                        class="kpi-value"
+                        id="tkaAverage"
+                    >
+                        —
+                    </div>
+
+                    <div class="kpi-change">
+                        Seluruh subtes
+                    </div>
+
+                </div>
+
+
+
+                <div class="card">
+
+                    <div class="kpi-label">
+                        Skor Tertinggi
+                    </div>
+
+                    <div
+                        class="kpi-value"
+                        id="tkaHighest"
+                    >
+                        —
+                    </div>
+
+                    <div class="kpi-change">
+                        Nilai tertinggi
+                    </div>
+
+                </div>
+
+
+
+                <div class="card">
+
+                    <div class="kpi-label">
+                        Skor Terendah
+                    </div>
+
+                    <div
+                        class="kpi-value"
+                        id="tkaLowest"
+                    >
+                        —
+                    </div>
+
+                    <div class="kpi-change">
+                        Perlu perhatian
+                    </div>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- ANALISIS SUBTES -->
+
+            <section class="card">
+
+                <div class="card-title">
+                    📊 Analisis Performa Subtes
+                </div>
+
+
+                <div
+                    id="tkaSubjectGrid"
+                    class="subject-grid"
+                >
+
+                    <div class="loading">
+                        Memuat analisis subtes...
+                    </div>
+
+                </div>
+
+            </section>
+
+
+
+            <br>
+
+
+
+            <!-- RANKING TKA -->
+
+            <section class="card">
+
+                <div class="card-title">
+                    🏆 Ranking Siswa — TKA
+                </div>
+
+
+                <div class="table-wrapper">
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+
+                                <th>#</th>
+
+                                <th>Siswa</th>
+
+                                <th>Sekolah</th>
+
+                                <th>Rata-rata</th>
+
+                                <th>Subtes</th>
+
+                                <th>Status</th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody id="tkaRankingTable">
+
+                            <tr>
+
+                                <td
+                                    colspan="6"
+                                    class="loading"
+                                >
+                                    Memuat ranking...
+                                </td>
+
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </section>
+
+        </section>
+
+
+
+        <!-- =================================
+             UTBK PLACEHOLDER
+        ================================== -->
+
+        <section
+            id="page-utbk"
+            class="page"
+            style="display:none;"
+        >
+
+            <div class="topbar">
+
+                <div>
+
+                    <h2>
+                        🚀 UTBK
+                    </h2>
+
+                    <p>
+                        Analisis performa UTBK
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="card">
+
+                <div class="card-title">
+                    Modul UTBK
+                </div>
 
                 <p>
-                    Analisis performa siswa TKA & UTBK
+                    Modul ini akan kita bangun setelah
+                    analisis TKA selesai.
                 </p>
 
             </div>
 
-
-            <select
-                id="testSelector"
-                class="test-selector"
-            >
-
-                <option value="TKA001">
-                    TO TKA 1
-                </option>
-
-            </select>
-
-        </div>
+        </section>
 
 
 
-        <!-- ERROR -->
+        <!-- =================================
+             STUDENTS PLACEHOLDER
+        ================================== -->
 
-        <div
-            id="errorBox"
-            class="error"
+        <section
+            id="page-students"
+            class="page"
             style="display:none;"
-        ></div>
+        >
 
+            <div class="topbar">
 
+                <div>
 
-        <!-- =====================================
-             KPI
-        ====================================== -->
+                    <h2>
+                        👥 Siswa
+                    </h2>
 
-        <section class="kpi-grid">
+                    <p>
+                        Database dan profil siswa
+                    </p>
 
-
-            <!-- TOTAL SISWA -->
-
-            <div class="card">
-
-                <div class="kpi-label">
-                    Total Siswa
-                </div>
-
-                <div
-                    class="kpi-value"
-                    id="totalStudents"
-                >
-                    —
-                </div>
-
-                <div class="kpi-change">
-                    Master siswa
                 </div>
 
             </div>
 
 
-
-            <!-- PESERTA -->
-
             <div class="card">
 
-                <div class="kpi-label">
-                    Peserta TO
+                <div class="card-title">
+                    Student Profile
                 </div>
 
-                <div
-                    class="kpi-value"
-                    id="participants"
-                >
-                    —
-                </div>
-
-                <div
-                    class="kpi-change"
-                    id="participantNote"
-                >
-                    TO TKA 1
-                </div>
+                <p>
+                    Modul profil siswa akan kita bangun
+                    setelah modul TKA.
+                </p>
 
             </div>
-
-
-
-            <!-- BELUM IKUT -->
-
-            <div class="card">
-
-                <div class="kpi-label">
-                    Belum Ikut
-                </div>
-
-                <div
-                    class="kpi-value"
-                    id="notParticipants"
-                >
-                    —
-                </div>
-
-                <div class="kpi-change">
-                    Belum ada nilai
-                </div>
-
-            </div>
-
-
-
-            <!-- RATA-RATA -->
-
-            <div class="card">
-
-                <div class="kpi-label">
-                    Rata-rata Skor
-                </div>
-
-                <div
-                    class="kpi-value"
-                    id="averageScore"
-                >
-                    —
-                </div>
-
-                <div class="kpi-change">
-                    Seluruh subtes tersedia
-                </div>
-
-            </div>
-
 
         </section>
 
 
 
-        <!-- =====================================
-             CHART + INTERVENTION
-        ====================================== -->
+        <!-- =================================
+             RANKING PLACEHOLDER
+        ================================== -->
 
-        <section class="content-grid">
+        <section
+            id="page-ranking"
+            class="page"
+            style="display:none;"
+        >
 
+            <div class="topbar">
 
-            <!-- CHART -->
+                <div>
 
-            <div class="card">
+                    <h2>
+                        🏆 Ranking
+                    </h2>
 
-                <div class="card-title">
-                    Distribusi Rata-rata Siswa
-                </div>
-
-
-                <div
-                    id="chart"
-                    class="chart"
-                >
-
-                    <div class="loading">
-                        Memuat data...
-                    </div>
+                    <p>
+                        Ranking performa siswa
+                    </p>
 
                 </div>
 
             </div>
 
 
-
-            <!-- INTERVENTION -->
-
             <div class="card">
 
                 <div class="card-title">
-                    Perlu Perhatian
+                    Ranking Center
                 </div>
 
-
-                <div
-                    id="intervention"
-                    class="student-list"
-                >
-
-                    <div class="loading">
-                        Memuat data...
-                    </div>
-
-                </div>
+                <p>
+                    Ranking lintas TO akan kita bangun
+                    setelah TKA dan UTBK tersedia.
+                </p>
 
             </div>
-
 
         </section>
 
 
 
-        <!-- =====================================
-             TOP PERFORMANCE
-        ====================================== -->
+        <!-- =================================
+             INTERVENTION PLACEHOLDER
+        ================================== -->
 
-        <section class="card">
+        <section
+            id="page-intervention"
+            class="page"
+            style="display:none;"
+        >
 
+            <div class="topbar">
 
-            <div class="card-title">
+                <div>
 
-                Top Performance —
-                TO TKA 1
+                    <h2>
+                        🚨 Intervention
+                    </h2>
 
-            </div>
+                    <p>
+                        Siswa yang membutuhkan perhatian
+                    </p>
 
-
-            <div class="table-wrapper">
-
-
-                <table>
-
-                    <thead>
-
-                        <tr>
-
-                            <th>
-                                #
-                            </th>
-
-                            <th>
-                                Siswa
-                            </th>
-
-                            <th>
-                                Sekolah
-                            </th>
-
-                            <th>
-                                Rata-rata
-                            </th>
-
-                            <th>
-                                Subtes
-                            </th>
-
-                            <th>
-                                Status
-                            </th>
-
-                        </tr>
-
-                    </thead>
-
-
-                    <tbody
-                        id="rankingTable"
-                    >
-
-                        <tr>
-
-                            <td
-                                colspan="6"
-                                class="loading"
-                            >
-
-                                Memuat data...
-
-                            </td>
-
-                        </tr>
-
-                    </tbody>
-
-                </table>
-
+                </div>
 
             </div>
 
+
+            <div class="card">
+
+                <div class="card-title">
+                    Intervention Center
+                </div>
+
+                <p>
+                    Sistem rekomendasi intervention akan
+                    kita kembangkan setelah data growth
+                    beberapa TO tersedia.
+                </p>
+
+            </div>
 
         </section>
 
@@ -391,9 +773,7 @@
 
 
 
-<!-- =====================================
-     JAVASCRIPT UTAMA
-====================================== -->
+<!-- JAVASCRIPT -->
 
 <script
     src="js/app.js"
