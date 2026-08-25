@@ -6,7 +6,7 @@
     let logo=brand.querySelector('.bac-header-logo');
     if(!logo){
       logo=document.createElement('img'); logo.className='bac-header-logo';
-      logo.src='logo-header-ba.png?v=20260825j'; logo.alt='Brain Academy by Ruangguru';
+      logo.src='logo-header-ba.png?v=20260825k'; logo.alt='Brain Academy by Ruangguru';
       brand.prepend(logo);
     }
     let title=brand.querySelector('.brand-title');
@@ -16,6 +16,21 @@
     if(!sub){ sub=document.createElement('div'); sub.className='brand-subtitle'; brand.appendChild(sub); }
     sub.innerHTML='TO TKA &amp; TO UTBK<br>BAC PADANG - TARANDAM<br>2026/2027';
     title.style.display='block'; sub.style.display='block';
+  }
+  function placeOverviewLegend(){
+    const overview=document.getElementById('page-overview');
+    if(!overview)return;
+    if(typeof window.addStatusLegend==='function') window.addStatusLegend('page-overview');
+    const legend=document.getElementById('page-overviewLegend');
+    if(!legend)return;
+    const cards=[...overview.querySelectorAll('.card')];
+    const improvement=document.getElementById('overviewImprovementCard');
+    const top=cards.find(c=>c.querySelector('.card-title')?.textContent.trim()==='🏆 10 Siswa Teratas');
+    if(improvement){
+      improvement.parentNode.insertBefore(legend,improvement);
+    }else if(top){
+      top.parentNode.insertBefore(legend,top.nextElementSibling);
+    }
   }
   function applyStatic(){
     applyBrand();
@@ -30,6 +45,7 @@
     document.getElementById('tkaRankingTable')?.closest('.card')?.remove();
     document.querySelectorAll('#page-overview .card-title').forEach(e=>{if(e.textContent.trim()==='Top Performance')e.textContent='🏆 10 Siswa Teratas';});
     document.querySelectorAll('#page-overview .card-title').forEach(e=>{if(e.textContent.trim()==='Perlu Perhatian')e.closest('.card')?.remove();});
+    placeOverviewLegend();
   }
   window.restoreDashboardUI=applyStatic;
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(applyStatic,100));else setTimeout(applyStatic,100);
