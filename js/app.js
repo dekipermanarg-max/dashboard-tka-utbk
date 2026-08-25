@@ -531,8 +531,6 @@ function getStudentMap() {
 
 /* =========================================================
    STUDENT ANALYSIS
-   IMPORTANT:
-   Average is calculated PER STUDENT first.
 ========================================================= */
 
 function calculateStudentAnalysis(
@@ -1393,18 +1391,6 @@ function getSubtest(
 }
 
 
-/*
-   Berdasarkan struktur TKA 2026:
-   TKA01 MAT
-   TKA02 B.IND
-   TKA03 ENG
-
-   = MAPEL WAJIB
-
-   TKA04-TKA14
-   = MAPEL PILIHAN
-*/
-
 function isMandatoryTKA(
     subtestId
 ) {
@@ -1523,6 +1509,7 @@ function renderStudentScores(
 
 /* =========================================================
    SCORE CARDS
+   subtest_id sengaja TIDAK ditampilkan
 ========================================================= */
 
 function renderScoreCards(
@@ -1613,12 +1600,6 @@ function renderScoreCards(
                             ${scoreClass}
                         ">
                             ${score}
-                        </div>
-
-                        <div class="score-card-id">
-                            ${escapeHTML(
-                                result.subtest_id
-                            )}
                         </div>
 
                     </div>
