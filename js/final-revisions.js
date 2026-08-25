@@ -80,6 +80,22 @@
     });
   }
 
+  /* Use the exact original BAC logo uploaded by the user. */
+  function useOriginalBACLogo(){
+    const brand=document.querySelector('.brand');
+    if(!brand || brand.querySelector('.bac-header-logo')) return;
+    const logo=document.createElement('img');
+    logo.className='bac-header-logo';
+    logo.src='logo-header-ba.png?v=20260825';
+    logo.alt='Brain Academy by Ruangguru';
+    logo.loading='eager';
+    const title=brand.querySelector('.brand-title');
+    const subtitle=brand.querySelector('.brand-subtitle');
+    if(title) title.remove();
+    if(subtitle) subtitle.remove();
+    brand.insertBefore(logo,brand.firstChild);
+  }
+
   function apply(){
     removeDetailPage();
     fixOverviewTitle();
@@ -88,6 +104,7 @@
     addStudentMapelTrend();
     addMinToSubjectCards();
     addNotesToStudent();
+    useOriginalBACLogo();
   }
 
   const oldRenderStudentDetail=window.renderStudentDetail;
@@ -100,7 +117,7 @@
   }
   const oldRenderOverview=window.renderOverview;
   if(typeof oldRenderOverview==='function'){
-    window.renderOverview=function(id){oldRenderOverview(id);fixOverviewTitle();addStatusLegend('page-overview')};
+    window.renderOverview=function(id){oldRenderOverview(id);fixOverviewTitle();addStatusLegend('page-overview');useOriginalBACLogo()};
   }
   const oldRenderRanking=window.renderRankingPage;
   if(typeof oldRenderRanking==='function'){
@@ -108,5 +125,5 @@
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(apply,50));else setTimeout(apply,50);
 
-  const st=document.createElement('style');st.textContent='.status-legend-card{margin-top:18px}.status-legend{display:flex;flex-wrap:wrap;gap:12px 22px;font-size:12px;color:#475569}.legend-dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px}.legend-dot.ontrack{background:#16a34a}.legend-dot.watchlist{background:#eab308}.legend-dot.intervention{background:#ef4444}.student-mapel-trend{margin-top:18px}.mapel-trend-row{display:grid;grid-template-columns:190px 1fr 60px;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid #e5e7eb}.mapel-name{display:flex;flex-direction:column}.mapel-name small{color:#64748b;margin-top:3px}.mapel-bars{height:52px;display:flex;align-items:end;gap:5px;overflow:hidden}.mapel-point{display:block;width:12px;min-height:6px;background:#2563eb;border-radius:3px 3px 0 0}.mapel-last{text-align:right}.student-analysis-notes{margin-top:14px;padding:12px;background:#f8fafc;border-radius:8px;font-size:12px;line-height:1.6}.note-title{font-weight:700;margin-bottom:4px}.subject-min-label{font-weight:500}.menu button[data-page="detail"]{display:none}@media(max-width:700px){.mapel-trend-row{grid-template-columns:120px 1fr 50px}.mapel-point{width:8px}}';document.head.appendChild(st);
+  const st=document.createElement('style');st.textContent='.status-legend-card{margin-top:18px}.status-legend{display:flex;flex-wrap:wrap;gap:12px 22px;font-size:12px;color:#475569}.legend-dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px}.legend-dot.ontrack{background:#16a34a}.legend-dot.watchlist{background:#eab308}.legend-dot.intervention{background:#ef4444}.student-mapel-trend{margin-top:18px}.mapel-trend-row{display:grid;grid-template-columns:190px 1fr 60px;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid #e5e7eb}.mapel-name{display:flex;flex-direction:column}.mapel-name small{color:#64748b;margin-top:3px}.mapel-bars{height:52px;display:flex;align-items:end;gap:5px;overflow:hidden}.mapel-point{display:block;width:12px;min-height:6px;background:#2563eb;border-radius:3px 3px 0 0}.mapel-last{text-align:right}.student-analysis-notes{margin-top:14px;padding:12px;background:#f8fafc;border-radius:8px;font-size:12px;line-height:1.6}.note-title{font-weight:700;margin-bottom:4px}.subject-min-label{font-weight:500}.menu button[data-page="detail"]{display:none}.bac-header-logo{display:block;width:180px;max-width:100%;height:auto;object-fit:contain;margin:0 0 18px 0}@media(max-width:700px){.mapel-trend-row{grid-template-columns:120px 1fr 50px}.mapel-point{width:8px}.bac-header-logo{width:150px}}';document.head.appendChild(st);
 })();
