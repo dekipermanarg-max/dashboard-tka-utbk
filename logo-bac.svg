@@ -1,1 +1,17 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 683"><image href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA..."/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 180">
+  <rect width="520" height="180" fill="none"/>
+  <g font-family="Arial, Helvetica, sans-serif" font-weight="800" fill="#18a8bd">
+    <text x="10" y="78" font-size="58" letter-spacing="2">BRAIN</text>
+    <text x="10" y="138" font-size="58" letter-spacing="2">ACADEMY</text>
+  </g>
+  <g fill="#f6a83b">
+    <path d="M420 24l28 10 16 28-16 26-30-5-17-26z"/>
+    <path d="M451 36l27-2 28 18-8 28-28 8-18-24z"/>
+    <path d="M428 92l30-10 22 17-19 24-29-4z"/>
+  </g>
+  <g fill="#18a8bd">
+    <path d="M450 42l14 20-14 24-13-20z"/>
+    <path d="M476 74l20-17 8 22-22 13z"/>
+  </g>
+  <text x="12" y="168" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700" fill="#18a8bd">By Ruangguru</text>
+</svg>
