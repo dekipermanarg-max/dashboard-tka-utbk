@@ -1,13 +1,13 @@
 /* Dashboard loader */
 (function(){
   const original = document.createElement('script');
-  original.src = 'app-original.js?v=20260825d';
+  original.src = 'app-original.js?v=20260825e';
   original.onload = function(){
     const revisions = document.createElement('script');
-    revisions.src = 'revisions.js?v=20260825d';
+    revisions.src = 'revisions.js?v=20260825e';
     revisions.onload = function(){
       const finalRevisions = document.createElement('script');
-      finalRevisions.src = 'final-revisions.js?v=20260825d';
+      finalRevisions.src = 'final-revisions.js?v=20260825e';
       finalRevisions.onload = function(){
         try { if (typeof initNavigation === 'function') initNavigation(); } catch (e) { console.error('initNavigation:', e); }
         try { if (typeof initSelectors === 'function') initSelectors(); } catch (e) { console.error('initSelectors:', e); }
