@@ -24,16 +24,13 @@
             min-height: 100vh;
         }
 
-        /* SIDEBAR */
         .sidebar {
             width: 240px;
             background: #111827;
             color: white;
             padding: 24px 16px;
             position: fixed;
-            left: 0;
-            top: 0;
-            bottom: 0;
+            inset: 0 auto 0 0;
         }
 
         .brand {
@@ -73,7 +70,6 @@
             color: white;
         }
 
-        /* MAIN */
         .main {
             margin-left: 240px;
             width: calc(100% - 240px);
@@ -105,7 +101,6 @@
             font-size: 14px;
         }
 
-        /* KPI */
         .kpi-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -137,7 +132,6 @@
             color: #16a34a;
         }
 
-        /* CONTENT */
         .content-grid {
             display: grid;
             grid-template-columns: 2fr 1fr;
@@ -151,7 +145,6 @@
             margin-bottom: 18px;
         }
 
-        /* CHART */
         .chart {
             height: 260px;
             display: flex;
@@ -175,6 +168,7 @@
             background: #2563eb;
             border-radius: 6px 6px 0 0;
             min-height: 10px;
+            transition: height .4s ease;
         }
 
         .bar-label {
@@ -189,7 +183,6 @@
             margin-bottom: 5px;
         }
 
-        /* LIST */
         .student-list {
             display: flex;
             flex-direction: column;
@@ -213,12 +206,6 @@
             font-weight: 600;
         }
 
-        .student-score {
-            font-size: 14px;
-            font-weight: 700;
-        }
-
-        /* STATUS */
         .status {
             display: inline-block;
             padding: 5px 9px;
@@ -242,7 +229,6 @@
             color: #b91c1c;
         }
 
-        /* TABLE */
         table {
             width: 100%;
             border-collapse: collapse;
@@ -261,7 +247,21 @@
             font-weight: 600;
         }
 
-        /* MOBILE */
+        .loading {
+            text-align: center;
+            padding: 30px;
+            color: #64748b;
+        }
+
+        .error {
+            background: #fee2e2;
+            color: #b91c1c;
+            padding: 14px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
         @media (max-width: 900px) {
 
             .sidebar {
@@ -326,14 +326,6 @@
             .kpi-value {
                 font-size: 22px;
             }
-
-            .chart {
-                gap: 10px;
-            }
-
-            .bar {
-                width: 35px;
-            }
         }
     </style>
 </head>
@@ -342,7 +334,6 @@
 
 <div class="app">
 
-    <!-- SIDEBAR -->
     <aside class="sidebar">
 
         <div class="brand">
@@ -362,7 +353,6 @@
     </aside>
 
 
-    <!-- MAIN -->
     <main class="main">
 
         <div class="topbar">
@@ -374,80 +364,53 @@
 
             <select class="test-selector">
                 <option>TO TKA 1</option>
-                <option>TO TKA 2</option>
-                <option>TO TKA 3</option>
-                <option>TO UTBK 1</option>
-                <option>TO UTBK 2</option>
             </select>
 
         </div>
 
 
-        <!-- KPI -->
+        <div id="errorBox" class="error"></div>
+
+
         <section class="kpi-grid">
 
             <div class="card">
                 <div class="kpi-label">Total Siswa</div>
-                <div class="kpi-value">23</div>
-                <div class="kpi-change">Angkatan XII</div>
+                <div class="kpi-value" id="totalStudents">—</div>
+                <div class="kpi-change">Master siswa</div>
             </div>
 
             <div class="card">
                 <div class="kpi-label">Peserta TO</div>
-                <div class="kpi-value">19</div>
-                <div class="kpi-change">TO TKA 1</div>
+                <div class="kpi-value" id="participants">—</div>
+                <div class="kpi-change" id="participantNote">TO TKA 1</div>
             </div>
 
             <div class="card">
-                <div class="kpi-label">Rata-rata</div>
-                <div class="kpi-value">—</div>
-                <div class="kpi-change">Segera dihitung</div>
+                <div class="kpi-label">Belum Ikut</div>
+                <div class="kpi-value" id="notParticipants">—</div>
+                <div class="kpi-change">Belum ada nilai</div>
             </div>
 
             <div class="card">
-                <div class="kpi-label">Growth</div>
-                <div class="kpi-value">—</div>
-                <div class="kpi-change">Menunggu TO berikutnya</div>
+                <div class="kpi-label">Rata-rata Skor</div>
+                <div class="kpi-value" id="averageScore">—</div>
+                <div class="kpi-change">Seluruh subtes tersedia</div>
             </div>
 
         </section>
 
 
-        <!-- CHART + INTERVENTION -->
         <section class="content-grid">
 
             <div class="card">
 
                 <div class="card-title">
-                    Perkembangan Rata-rata
+                    Distribusi Rata-rata Siswa
                 </div>
 
-                <div class="chart">
-
-                    <div class="bar-wrapper">
-                        <div class="bar-value">—</div>
-                        <div class="bar" style="height: 55%;"></div>
-                        <div class="bar-label">TKA 1</div>
-                    </div>
-
-                    <div class="bar-wrapper">
-                        <div class="bar-value">—</div>
-                        <div class="bar" style="height: 68%;"></div>
-                        <div class="bar-label">TKA 2</div>
-                    </div>
-
-                    <div class="bar-wrapper">
-                        <div class="bar-value">—</div>
-                        <div class="bar" style="height: 75%;"></div>
-                        <div class="bar-label">TKA 3</div>
-                    </div>
-
-                    <div class="bar-wrapper">
-                        <div class="bar-value">—</div>
-                        <div class="bar" style="height: 82%;"></div>
-                        <div class="bar-label">UTBK 1</div>
-                    </div>
-
+                <div id="chart" class="chart">
+                    <div class="loading">Memuat data...</div>
                 </div>
 
             </div>
@@ -456,25 +419,11 @@
             <div class="card">
 
                 <div class="card-title">
-                    Intervention
+                    Perlu Perhatian
                 </div>
 
-                <div class="student-list">
-
-                    <div class="student">
-                        <div>
-                            <div class="student-name">Belum tersedia</div>
-                        </div>
-                        <span class="status yellow">WAITING</span>
-                    </div>
-
-                    <div class="student">
-                        <div>
-                            <div class="student-name">Analisis akan otomatis</div>
-                        </div>
-                        <span class="status green">READY</span>
-                    </div>
-
+                <div id="intervention" class="student-list">
+                    <div class="loading">Memuat data...</div>
                 </div>
 
             </div>
@@ -482,66 +431,402 @@
         </section>
 
 
-        <!-- RANKING -->
         <section class="card">
 
             <div class="card-title">
-                Top Performance
+                Top Performance — TO TKA 1
             </div>
 
-            <table>
+            <div style="overflow-x:auto;">
 
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Siswa</th>
-                        <th>Skor</th>
-                        <th>Growth</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
+                <table>
 
-                <tbody>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Siswa</th>
+                            <th>Sekolah</th>
+                            <th>Rata-rata</th>
+                            <th>Subtes</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
 
-                    <tr>
-                        <td>1</td>
-                        <td>Data akan dimuat</td>
-                        <td>—</td>
-                        <td>—</td>
-                        <td>
-                            <span class="status green">READY</span>
-                        </td>
-                    </tr>
+                    <tbody id="rankingTable">
 
-                    <tr>
-                        <td>2</td>
-                        <td>Data akan dimuat</td>
-                        <td>—</td>
-                        <td>—</td>
-                        <td>
-                            <span class="status green">READY</span>
-                        </td>
-                    </tr>
+                        <tr>
+                            <td colspan="6" class="loading">
+                                Memuat data...
+                            </td>
+                        </tr>
 
-                    <tr>
-                        <td>3</td>
-                        <td>Data akan dimuat</td>
-                        <td>—</td>
-                        <td>—</td>
-                        <td>
-                            <span class="status green">READY</span>
-                        </td>
-                    </tr>
+                    </tbody>
 
-                </tbody>
+                </table>
 
-            </table>
+            </div>
 
         </section>
 
     </main>
 
 </div>
+
+
+<script>
+
+const API_URL =
+"https://script.google.com/macros/s/AKfycbyInRshwcgOWIM3RhFGBdhHDCz8kJhwWCiyVR8Zu7-L3YORvk-ypxW7yoxwEtgYpTHy/exec?action=all";
+
+
+async function loadDashboard() {
+
+    try {
+
+        const response = await fetch(API_URL);
+
+        if (!response.ok) {
+            throw new Error("API tidak dapat diakses.");
+        }
+
+        const json = await response.json();
+
+        if (!json.success) {
+            throw new Error(json.error || "API mengembalikan error.");
+        }
+
+        buildDashboard(json.data);
+
+    } catch (error) {
+
+        console.error(error);
+
+        const box = document.getElementById("errorBox");
+
+        box.style.display = "block";
+
+        box.textContent =
+            "Gagal memuat data: " + error.message;
+
+    }
+
+}
+
+
+function buildDashboard(data) {
+
+    const students = data.students || [];
+    const results = data.results || [];
+
+    document.getElementById("totalStudents").textContent =
+        students.length;
+
+
+    const tkaResults =
+        results.filter(r => r.test_id === "TKA001");
+
+
+    const participantIds =
+        [...new Set(
+            tkaResults.map(r => r.student_id)
+        )];
+
+
+    const participants =
+        participantIds.length;
+
+
+    document.getElementById("participants").textContent =
+        participants;
+
+
+    document.getElementById("notParticipants").textContent =
+        Math.max(students.length - participants, 0);
+
+
+    const scores =
+        tkaResults
+            .map(r => Number(r.nilai))
+            .filter(Number.isFinite);
+
+
+    const overallAverage =
+        scores.length
+            ? scores.reduce((a,b) => a+b, 0) / scores.length
+            : 0;
+
+
+    document.getElementById("averageScore").textContent =
+        overallAverage.toFixed(1);
+
+
+    const studentMap = {};
+
+    students.forEach(student => {
+
+        studentMap[student.student_id] = {
+            ...student,
+            scores: []
+        };
+
+    });
+
+
+    tkaResults.forEach(result => {
+
+        if (studentMap[result.student_id]) {
+
+            studentMap[result.student_id]
+                .scores
+                .push(Number(result.nilai));
+
+        }
+
+    });
+
+
+    const ranking =
+        Object.values(studentMap)
+            .filter(s => s.scores.length > 0)
+            .map(s => ({
+
+                ...s,
+
+                average:
+                    s.scores.reduce((a,b) => a+b, 0)
+                    / s.scores.length
+
+            }))
+            .sort((a,b) => b.average - a.average);
+
+
+    renderRanking(ranking);
+
+    renderChart(ranking);
+
+    renderIntervention(ranking);
+
+}
+
+
+function renderRanking(ranking) {
+
+    const table =
+        document.getElementById("rankingTable");
+
+    table.innerHTML = "";
+
+
+    ranking
+        .slice(0, 10)
+        .forEach((student, index) => {
+
+            const row =
+                document.createElement("tr");
+
+            let status = "ON TRACK";
+            let statusClass = "green";
+
+            if (student.average < 500) {
+
+                status = "INTERVENTION";
+                statusClass = "red";
+
+            } else if (student.average < 600) {
+
+                status = "WATCHLIST";
+                statusClass = "yellow";
+
+            }
+
+
+            row.innerHTML = `
+
+                <td>${index + 1}</td>
+
+                <td>
+                    <strong>${student.nama}</strong>
+                </td>
+
+                <td>
+                    ${student.sekolah}
+                </td>
+
+                <td>
+                    <strong>
+                        ${student.average.toFixed(1)}
+                    </strong>
+                </td>
+
+                <td>
+                    ${student.scores.length}
+                </td>
+
+                <td>
+                    <span class="status ${statusClass}">
+                        ${status}
+                    </span>
+                </td>
+
+            `;
+
+            table.appendChild(row);
+
+        });
+
+}
+
+
+function renderChart(ranking) {
+
+    const chart =
+        document.getElementById("chart");
+
+    chart.innerHTML = "";
+
+
+    const top =
+        ranking.slice(0, 6);
+
+
+    if (!top.length) {
+
+        chart.innerHTML =
+            '<div class="loading">Belum ada data.</div>';
+
+        return;
+
+    }
+
+
+    const maxScore =
+        Math.max(...top.map(s => s.average), 1);
+
+
+    top.forEach(student => {
+
+        const wrapper =
+            document.createElement("div");
+
+        wrapper.className =
+            "bar-wrapper";
+
+
+        const height =
+            (student.average / maxScore) * 85;
+
+
+        wrapper.innerHTML = `
+
+            <div class="bar-value">
+                ${student.average.toFixed(0)}
+            </div>
+
+            <div
+                class="bar"
+                style="height:${height}%"
+            ></div>
+
+            <div class="bar-label">
+                ${student.nama.split(" ")[0]}
+            </div>
+
+        `;
+
+
+        chart.appendChild(wrapper);
+
+    });
+
+}
+
+
+function renderIntervention(ranking) {
+
+    const container =
+        document.getElementById("intervention");
+
+    container.innerHTML = "";
+
+
+    const attention =
+        ranking
+            .filter(s => s.average < 600)
+            .sort((a,b) => a.average - b.average)
+            .slice(0, 5);
+
+
+    if (!attention.length) {
+
+        container.innerHTML = `
+            <div class="student">
+                <div class="student-name">
+                    Tidak ada siswa dalam watchlist.
+                </div>
+
+                <span class="status green">
+                    GOOD
+                </span>
+            </div>
+        `;
+
+        return;
+
+    }
+
+
+    attention.forEach(student => {
+
+        const div =
+            document.createElement("div");
+
+        div.className = "student";
+
+
+        const status =
+            student.average < 500
+                ? "INTERVENTION"
+                : "WATCHLIST";
+
+
+        const className =
+            student.average < 500
+                ? "red"
+                : "yellow";
+
+
+        div.innerHTML = `
+
+            <div>
+
+                <div class="student-name">
+                    ${student.nama}
+                </div>
+
+                <small>
+                    Rata-rata:
+                    ${student.average.toFixed(1)}
+                </small>
+
+            </div>
+
+            <span class="status ${className}">
+                ${status}
+            </span>
+
+        `;
+
+
+        container.appendChild(div);
+
+    });
+
+}
+
+
+loadDashboard();
+
+</script>
 
 </body>
 </html>
