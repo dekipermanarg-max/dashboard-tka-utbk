@@ -28,6 +28,16 @@ let detailSearchKeyword = "";
 
 
 /* =========================================================
+   TEST DISPLAY NAME OVERRIDES
+   ========================================================= */
+
+const TEST_NAME_OVERRIDES = {
+    // TKA001 is the currently running regular TO.
+    TKA001: "TKA SMA Reguler Episode 1"
+};
+
+
+/* =========================================================
    INITIALIZATION
 ========================================================= */
 
@@ -240,7 +250,12 @@ function getTestName(testOrId) {
         typeof testOrId === "object"
     ) {
 
+        const objectId =
+            getTestId(testOrId);
+
         return (
+            TEST_NAME_OVERRIDES[objectId] ||
+            testOrId.nama_to ||
             testOrId.nama ||
             testOrId.name ||
             testOrId.test_name ||
@@ -248,6 +263,13 @@ function getTestName(testOrId) {
             "Tanpa nama"
         );
 
+    }
+
+
+    if (
+        TEST_NAME_OVERRIDES[testOrId]
+    ) {
+        return TEST_NAME_OVERRIDES[testOrId];
     }
 
 
@@ -260,6 +282,7 @@ function getTestName(testOrId) {
 
 
     return (
+        test?.nama_to ||
         test?.nama ||
         test?.name ||
         test?.test_name ||
@@ -268,87 +291,6 @@ function getTestName(testOrId) {
         "Tanpa nama"
     );
 
-}
-
-
-/* =========================================================
-   TKA SCORE SCALE
-========================================================= */
-
-function getTKAScoreScale(testOrId) {
-
-    const name = String(
-        getTestName(testOrId) || ""
-    ).toUpperCase();
-
-    // Premium Episode 1 & 2 use the old 0-100 scale.
-    if (name.includes("PREMIUM")) {
-        return "0-100";
-    }
-
-    // Starting from TKA SMA Reguler Episode 1, use 200-800.
-    if (name.includes("REGULER")) {
-        return "200-800";
-    }
-
-    // Safe default for TKA data.
-    return "200-800";
-}
-
-function getTKAScoreClass(score, testOrId) {
-
-    const value = Number(score);
-
-    if (!Number.isFinite(value)) {
-        return "score-normal";
-    }
-
-    const scale = getTKAScoreScale(testOrId);
-
-    if (scale === "0-100") {
-
-        if (value < 50) {
-            return "score-low";
-        }
-
-        if (value < 60) {
-            return "score-medium";
-        }
-
-        return "score-high";
-    }
-
-    // TKA SMA Reguler: <500 red, 500-724 yellow, >=725 green.
-    if (value < 500) {
-        return "score-low";
-    }
-
-    if (value < 725) {
-        return "score-medium";
-    }
-
-    return "score-high";
-}
-
-function getTKASubjectScoreClass(score, testOrId) {
-
-    const value = Number(score);
-
-    if (!Number.isFinite(value)) {
-        return "green";
-    }
-
-    const scale = getTKAScoreScale(testOrId);
-
-    if (scale === "0-100") {
-        if (value < 50) return "red";
-        if (value < 60) return "yellow";
-        return "green";
-    }
-
-    if (value < 500) return "red";
-    if (value < 725) return "yellow";
-    return "green";
 }
 
 
