@@ -9,7 +9,9 @@
       logo = document.createElement('img');
       logo.className = 'bac-original-logo';
       logo.alt = 'Brain Academy by Ruangguru';
-      logo.src = '/dashboard-tka-utbk/logo-header-ba.png?v=20260825f';
+      // index.html is in the repository root, so use a root-relative
+      // repository path that also works on GitHub Pages project sites.
+      logo.src = 'logo-header-ba.png?v=20260825g';
       logo.style.cssText = 'display:block;width:180px;max-width:100%;height:auto;object-fit:contain;margin:0 0 24px 0;';
       brand.prepend(logo);
     }
