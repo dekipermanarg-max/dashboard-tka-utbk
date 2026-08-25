@@ -271,6 +271,87 @@ function getTestName(testOrId) {
 }
 
 
+/* =========================================================
+   TKA SCORE SCALE
+========================================================= */
+
+function getTKAScoreScale(testOrId) {
+
+    const name = String(
+        getTestName(testOrId) || ""
+    ).toUpperCase();
+
+    // Premium Episode 1 & 2 use the old 0-100 scale.
+    if (name.includes("PREMIUM")) {
+        return "0-100";
+    }
+
+    // Starting from TKA SMA Reguler Episode 1, use 200-800.
+    if (name.includes("REGULER")) {
+        return "200-800";
+    }
+
+    // Safe default for TKA data.
+    return "200-800";
+}
+
+function getTKAScoreClass(score, testOrId) {
+
+    const value = Number(score);
+
+    if (!Number.isFinite(value)) {
+        return "score-normal";
+    }
+
+    const scale = getTKAScoreScale(testOrId);
+
+    if (scale === "0-100") {
+
+        if (value < 50) {
+            return "score-low";
+        }
+
+        if (value < 60) {
+            return "score-medium";
+        }
+
+        return "score-high";
+    }
+
+    // TKA SMA Reguler: <500 red, 500-724 yellow, >=725 green.
+    if (value < 500) {
+        return "score-low";
+    }
+
+    if (value < 725) {
+        return "score-medium";
+    }
+
+    return "score-high";
+}
+
+function getTKASubjectScoreClass(score, testOrId) {
+
+    const value = Number(score);
+
+    if (!Number.isFinite(value)) {
+        return "green";
+    }
+
+    const scale = getTKAScoreScale(testOrId);
+
+    if (scale === "0-100") {
+        if (value < 50) return "red";
+        if (value < 60) return "yellow";
+        return "green";
+    }
+
+    if (value < 500) return "red";
+    if (value < 725) return "yellow";
+    return "green";
+}
+
+
 function getTestJenis(test) {
 
     return String(
@@ -2118,25 +2199,11 @@ function renderTKASubjects(
                 "subject-card";
 
 
-            let scoreClass =
-                "green";
-
-
-            if (
-                subject.average < 500
-            ) {
-
-                scoreClass =
-                    "red";
-
-            } else if (
-                subject.average < 600
-            ) {
-
-                scoreClass =
-                    "yellow";
-
-            }
+            const scoreClass =
+                getTKASubjectScoreClass(
+                    subject.average,
+                    testId
+                );
 
 
             card.innerHTML = `
@@ -2597,8 +2664,9 @@ function renderDetailTO(
                             value;
 
                         cell.className =
-                            getScoreCellClass(
-                                value
+                            getTKAScoreClass(
+                                value,
+                                currentDetailTestId
                             );
 
                     }
@@ -2788,37 +2856,14 @@ function getStudentsForDetail(
 ========================================================= */
 
 function getScoreCellClass(
-    score
+    score,
+    testOrId
 ) {
 
-    if (
-        score < 500
-    ) {
-
-        return "score-low";
-
-    }
-
-
-    if (
-        score < 600
-    ) {
-
-        return "score-medium";
-
-    }
-
-
-    if (
-        score >= 700
-    ) {
-
-        return "score-high";
-
-    }
-
-
-    return "score-normal";
+    return getTKAScoreClass(
+        score,
+        testOrId || currentDetailTestId
+    );
 
 }
 
@@ -3527,27 +3572,11 @@ function renderScoreCards(
                     result.nilai;
 
 
-                let scoreClass =
-                    "green";
-
-
-                if (
-                    score < 500
-                ) {
-
-                    scoreClass =
-                        "red";
-
-                }
-
-                else if (
-                    score < 600
-                ) {
-
-                    scoreClass =
-                        "yellow";
-
-                }
+                const scoreClass =
+                    getTKASubjectScoreClass(
+                        score,
+                        currentStudentTestId
+                    );
 
 
                 return `
