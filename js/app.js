@@ -2599,7 +2599,7 @@ function renderDetailTO(
                         cell.className =
                             getScoreCellClass(
                                 value,
-                                selectedTestId
+                                currentDetailTestId
                             );
 
                     }
@@ -2809,7 +2809,7 @@ function getScoreCellClass(
     const scale =
         getTKAScoreScale(
             testOrId ||
-            selectedTestId
+            currentDetailTestId
         );
 
 
