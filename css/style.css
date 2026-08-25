@@ -1080,3 +1080,85 @@ tbody tr:hover {
     }
 
 }
+
+/* =========================================================
+   DETAIL TO - FIX TABLE LAYOUT
+   ========================================================= */
+
+.detail-to-page {
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.detail-to-card {
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.detail-to-table-wrapper {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: visible;
+  display: block;
+  position: relative;
+}
+
+.detail-to-table {
+  width: max-content;
+  min-width: 100%;
+  border-collapse: collapse;
+  table-layout: auto;
+}
+
+.detail-to-table th,
+.detail-to-table td {
+  white-space: nowrap;
+  padding: 12px 14px;
+}
+
+/* NO */
+.detail-to-table th:first-child,
+.detail-to-table td:first-child {
+  min-width: 50px;
+  width: 50px;
+  text-align: center;
+}
+
+/* NAMA SISWA */
+.detail-to-table th:nth-child(2),
+.detail-to-table td:nth-child(2) {
+  min-width: 240px;
+  width: 240px;
+  text-align: left;
+}
+
+/* Nilai mapel */
+.detail-to-table th:nth-child(n+3),
+.detail-to-table td:nth-child(n+3) {
+  min-width: 75px;
+  text-align: center;
+}
+
+/* Header */
+.detail-to-table thead th {
+  white-space: nowrap;
+}
+
+/* Jangan biarkan tabel menekan layout halaman */
+.detail-to-table-wrapper table {
+  max-width: none;
+}
+
+/* Mobile / layar kecil */
+@media (max-width: 900px) {
+  .detail-to-table-wrapper {
+    overflow-x: auto;
+  }
+
+  .detail-to-table {
+    min-width: 1200px;
+  }
+}
