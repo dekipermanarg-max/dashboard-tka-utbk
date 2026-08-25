@@ -36,6 +36,172 @@ const TEST_NAME_OVERRIDES = {
     TKA001: "TKA SMA Reguler Episode 1"
 };
 
+/* =========================================================
+   TKA SCORE SCALE & SCORE COLORS
+========================================================= */
+
+function getTKAScoreScale(testOrId) {
+
+    const name =
+        String(
+            getTestName(
+                testOrId
+            ) || ""
+        ).toUpperCase();
+
+
+    // Premium Episode 1 & 2 use the old 0-100 scale.
+    if (
+        name.includes("PREMIUM")
+    ) {
+        return "0-100";
+    }
+
+
+    // TKA SMA Reguler uses the 200-800 scale.
+    if (
+        name.includes("REGULER")
+    ) {
+        return "200-800";
+    }
+
+
+    // Safe default for TKA data.
+    return "200-800";
+
+}
+
+
+function getTKAScoreClass(
+    score,
+    testOrId
+) {
+
+    const value =
+        Number(score);
+
+
+    if (
+        !Number.isFinite(value)
+    ) {
+        return "score-normal";
+    }
+
+
+    const scale =
+        getTKAScoreScale(
+            testOrId
+        );
+
+
+    if (
+        scale === "0-100"
+    ) {
+
+        if (
+            value < 50
+        ) {
+            return "score-low";
+        }
+
+
+        if (
+            value < 60
+        ) {
+            return "score-medium";
+        }
+
+
+        return "score-high";
+
+    }
+
+
+    // TKA SMA Reguler:
+    // <500 red, 500-724 yellow, >=725 green.
+    if (
+        value < 500
+    ) {
+        return "score-low";
+    }
+
+
+    if (
+        value < 725
+    ) {
+        return "score-medium";
+    }
+
+
+    return "score-high";
+
+}
+
+
+function getTKASubjectScoreClass(
+    score,
+    testOrId
+) {
+
+    const value =
+        Number(score);
+
+
+    if (
+        !Number.isFinite(value)
+    ) {
+        return "green";
+    }
+
+
+    const scale =
+        getTKAScoreScale(
+            testOrId
+        );
+
+
+    if (
+        scale === "0-100"
+    ) {
+
+        if (
+            value < 50
+        ) {
+            return "red";
+        }
+
+
+        if (
+            value < 60
+        ) {
+            return "yellow";
+        }
+
+
+        return "green";
+
+    }
+
+
+    if (
+        value < 500
+    ) {
+        return "red";
+    }
+
+
+    if (
+        value < 725
+    ) {
+        return "yellow";
+    }
+
+
+    return "green";
+
+}
+
+
 
 /* =========================================================
    INITIALIZATION
