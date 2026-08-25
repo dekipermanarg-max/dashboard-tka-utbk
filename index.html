@@ -30,8 +30,6 @@
         rel="stylesheet"
     >
 
-    <!-- Dashboard CSS -->
-
     <link
         rel="stylesheet"
         href="css/style.css"
@@ -122,7 +120,7 @@
 
 
         <!-- =================================
-             OVERVIEW PAGE
+             OVERVIEW
         ================================== -->
 
         <section
@@ -166,11 +164,9 @@
             ></div>
 
 
-
             <!-- KPI -->
 
             <section class="kpi-grid">
-
 
                 <div class="card">
 
@@ -190,7 +186,6 @@
                     </div>
 
                 </div>
-
 
 
                 <div class="card">
@@ -216,7 +211,6 @@
                 </div>
 
 
-
                 <div class="card">
 
                     <div class="kpi-label">
@@ -237,7 +231,6 @@
                 </div>
 
 
-
                 <div class="card">
 
                     <div class="kpi-label">
@@ -252,7 +245,7 @@
                     </div>
 
                     <div class="kpi-change">
-                        Seluruh nilai tersedia
+                        Rata-rata siswa
                     </div>
 
                 </div>
@@ -260,11 +253,9 @@
             </section>
 
 
-
-            <!-- CHART + INTERVENTION -->
+            <!-- CHART -->
 
             <section class="content-grid">
-
 
                 <div class="card">
 
@@ -287,7 +278,6 @@
                 </div>
 
 
-
                 <div class="card">
 
                     <div class="card-title">
@@ -308,15 +298,12 @@
 
                 </div>
 
-
             </section>
-
 
 
             <!-- RANKING -->
 
             <section class="card">
-
 
                 <div class="card-title">
                     Top Performance — TO TKA 1
@@ -332,15 +319,10 @@
                             <tr>
 
                                 <th>#</th>
-
                                 <th>Siswa</th>
-
                                 <th>Sekolah</th>
-
                                 <th>Rata-rata</th>
-
                                 <th>Subtes</th>
-
                                 <th>Status</th>
 
                             </tr>
@@ -374,7 +356,7 @@
 
 
         <!-- =================================
-             TKA PAGE
+             TKA
         ================================== -->
 
         <section
@@ -412,11 +394,7 @@
             </div>
 
 
-
-            <!-- TKA KPI -->
-
             <section class="kpi-grid">
-
 
                 <div class="card">
 
@@ -438,7 +416,6 @@
                 </div>
 
 
-
                 <div class="card">
 
                     <div class="kpi-label">
@@ -453,11 +430,10 @@
                     </div>
 
                     <div class="kpi-change">
-                        Seluruh subtes
+                        Rata-rata siswa
                     </div>
 
                 </div>
-
 
 
                 <div class="card">
@@ -478,7 +454,6 @@
                     </div>
 
                 </div>
-
 
 
                 <div class="card">
@@ -503,9 +478,6 @@
             </section>
 
 
-
-            <!-- ANALISIS SUBTES -->
-
             <section class="card">
 
                 <div class="card-title">
@@ -527,12 +499,8 @@
             </section>
 
 
-
             <br>
 
-
-
-            <!-- RANKING TKA -->
 
             <section class="card">
 
@@ -550,15 +518,10 @@
                             <tr>
 
                                 <th>#</th>
-
                                 <th>Siswa</th>
-
                                 <th>Sekolah</th>
-
                                 <th>Rata-rata</th>
-
                                 <th>Subtes</th>
-
                                 <th>Status</th>
 
                             </tr>
@@ -592,7 +555,126 @@
 
 
         <!-- =================================
-             UTBK PLACEHOLDER
+             STUDENTS / DETAIL SISWA
+        ================================== -->
+
+        <section
+            id="page-students"
+            class="page"
+            style="display:none;"
+        >
+
+            <div class="topbar">
+
+                <div>
+
+                    <h2>
+                        👥 Siswa
+                    </h2>
+
+                    <p>
+                        Profil dan detail nilai setiap siswa
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!-- SELECT SISWA -->
+
+            <section class="card student-selector-card">
+
+                <div class="selector-grid">
+
+                    <div>
+
+                        <label
+                            for="studentSelector"
+                            class="field-label"
+                        >
+                            Pilih Siswa
+                        </label>
+
+                        <select
+                            id="studentSelector"
+                            class="test-selector full-width"
+                        >
+
+                            <option>
+                                Memuat siswa...
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <div>
+
+                        <label
+                            for="studentTestSelector"
+                            class="field-label"
+                        >
+                            Pilih TO
+                        </label>
+
+                        <select
+                            id="studentTestSelector"
+                            class="test-selector full-width"
+                        >
+
+                            <option value="TKA001">
+                                TO TKA 1
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <br>
+
+
+            <!-- STUDENT PROFILE -->
+
+            <section
+                id="studentProfile"
+                class="card"
+            >
+
+                <div class="loading">
+                    Pilih siswa untuk melihat detail.
+                </div>
+
+            </section>
+
+
+            <br>
+
+
+            <!-- DETAIL NILAI -->
+
+            <section
+                id="studentScores"
+            >
+
+                <div class="loading">
+                    Pilih siswa untuk melihat nilai.
+                </div>
+
+            </section>
+
+        </section>
+
+
+
+        <!-- =================================
+             UTBK
         ================================== -->
 
         <section
@@ -625,8 +707,8 @@
                 </div>
 
                 <p>
-                    Modul ini akan kita bangun setelah
-                    analisis TKA selesai.
+                    Modul UTBK akan dibangun setelah
+                    fondasi TKA selesai.
                 </p>
 
             </div>
@@ -636,51 +718,7 @@
 
 
         <!-- =================================
-             STUDENTS PLACEHOLDER
-        ================================== -->
-
-        <section
-            id="page-students"
-            class="page"
-            style="display:none;"
-        >
-
-            <div class="topbar">
-
-                <div>
-
-                    <h2>
-                        👥 Siswa
-                    </h2>
-
-                    <p>
-                        Database dan profil siswa
-                    </p>
-
-                </div>
-
-            </div>
-
-
-            <div class="card">
-
-                <div class="card-title">
-                    Student Profile
-                </div>
-
-                <p>
-                    Modul profil siswa akan kita bangun
-                    setelah modul TKA.
-                </p>
-
-            </div>
-
-        </section>
-
-
-
-        <!-- =================================
-             RANKING PLACEHOLDER
+             RANKING
         ================================== -->
 
         <section
@@ -713,8 +751,8 @@
                 </div>
 
                 <p>
-                    Ranking lintas TO akan kita bangun
-                    setelah TKA dan UTBK tersedia.
+                    Ranking lintas TO akan dibangun
+                    setelah modul TKA dan UTBK tersedia.
                 </p>
 
             </div>
@@ -724,7 +762,7 @@
 
 
         <!-- =================================
-             INTERVENTION PLACEHOLDER
+             INTERVENTION
         ================================== -->
 
         <section
@@ -757,9 +795,8 @@
                 </div>
 
                 <p>
-                    Sistem rekomendasi intervention akan
-                    kita kembangkan setelah data growth
-                    beberapa TO tersedia.
+                    Sistem intervention akan dikembangkan
+                    setelah data beberapa TO tersedia.
                 </p>
 
             </div>
@@ -772,13 +809,7 @@
 </div>
 
 
-
-<!-- JAVASCRIPT -->
-
-<script
-    src="js/app.js"
-></script>
-
+<script src="js/app.js"></script>
 
 </body>
 
