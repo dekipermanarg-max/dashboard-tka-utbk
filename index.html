@@ -10,9 +10,12 @@
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>Student Analytics — TKA & UTBK</title>
+    <title>
+        Student Analytics - TKA & UTBK
+    </title>
 
-    <!-- INTER FONT -->
+
+    <!-- Inter -->
     <link
         rel="preconnect"
         href="https://fonts.googleapis.com"
@@ -25,14 +28,15 @@
     >
 
     <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
         rel="stylesheet"
     >
 
-    <!-- CSS -->
+
+    <!-- Main CSS -->
     <link
         rel="stylesheet"
-        href="./css/style.css"
+        href="css/style.css"
     >
 
 </head>
@@ -40,101 +44,174 @@
 
 <body>
 
+
 <div class="app">
 
 
-    <!-- ================================
+    <!-- =====================================================
          SIDEBAR
-    ================================= -->
+    ====================================================== -->
 
     <aside class="sidebar">
 
         <div class="brand">
 
-            <h1>
+            <div class="brand-title">
                 Student Analytics
-            </h1>
+            </div>
 
-            <p>
+            <div class="brand-subtitle">
                 TKA & UTBK Performance
-            </p>
+            </div>
 
         </div>
 
 
         <nav class="menu">
 
+
+            <!-- 1. OVERVIEW -->
+
             <button
                 class="active"
                 data-page="overview"
             >
-                🏠 Overview
+
+                🏠
+                <span>
+                    Overview
+                </span>
+
             </button>
 
+
+            <!-- 2. TKA -->
 
             <button
                 data-page="tka"
             >
-                🎯 TKA
+
+                🎯
+                <span>
+                    TKA
+                </span>
+
             </button>
 
+
+            <!-- 3. UTBK -->
 
             <button
                 data-page="utbk"
             >
-                🚀 UTBK
+
+                🚀
+                <span>
+                    UTBK
+                </span>
+
             </button>
 
+
+            <!-- 4. DETAIL TO -->
+
+            <button
+                data-page="detail"
+            >
+
+                📋
+                <span>
+                    Detail TO
+                </span>
+
+            </button>
+
+
+            <!-- 5. SISWA -->
 
             <button
                 data-page="students"
             >
-                👥 Siswa
+
+                👥
+                <span>
+                    Siswa
+                </span>
+
             </button>
 
+
+            <!-- 6. RANKING -->
 
             <button
                 data-page="ranking"
             >
-                🏆 Ranking
+
+                🏆
+                <span>
+                    Ranking
+                </span>
+
             </button>
 
+
+            <!-- 7. INTERVENTION -->
 
             <button
-                data-page="intervention"
+                data-page="intervention-page"
             >
-                🚨 Intervention
+
+                🚨
+                <span>
+                    Intervention
+                </span>
+
             </button>
 
+
         </nav>
+
 
     </aside>
 
 
 
-    <!-- ================================
-         MAIN
-    ================================= -->
+    <!-- =====================================================
+         MAIN CONTENT
+    ====================================================== -->
 
-    <main class="main">
+    <main class="main-content">
 
 
-        <!-- ================================
-             OVERVIEW
-        ================================= -->
+        <!-- =================================================
+             ERROR BOX
+        ================================================== -->
+
+        <div
+            id="errorBox"
+            class="error-box"
+            style="display:none;"
+        ></div>
+
+
+
+        <!-- =================================================
+             1. OVERVIEW
+        ================================================== -->
 
         <section
             id="page-overview"
             class="page"
         >
 
-            <div class="topbar">
+
+            <div class="page-header">
 
                 <div>
 
-                    <h2>
+                    <h1>
                         Overview
-                    </h2>
+                    </h1>
 
                     <p>
                         Analisis performa siswa TKA & UTBK
@@ -143,119 +220,117 @@
                 </div>
 
 
-                <select
-                    id="testSelector"
-                    class="test-selector"
-                >
+                <div>
 
-                    <option value="TKA001">
-                        TO TKA 1
-                    </option>
+                    <select
+                        id="testSelector"
+                    ></select>
 
-                </select>
+                </div>
 
             </div>
 
 
-            <div
-                id="errorBox"
-                class="error"
-                style="display:none;"
-            ></div>
-
 
             <!-- KPI -->
 
-            <section class="kpi-grid">
+            <div class="kpi-grid">
 
-                <div class="card">
+
+                <div class="card kpi-card">
 
                     <div class="kpi-label">
                         Total Siswa
                     </div>
 
                     <div
-                        class="kpi-value"
                         id="totalStudents"
+                        class="kpi-value"
                     >
                         —
                     </div>
 
-                    <div class="kpi-change">
+                    <div class="kpi-note">
                         Master siswa
                     </div>
 
                 </div>
 
 
-                <div class="card">
+
+                <div class="card kpi-card">
 
                     <div class="kpi-label">
                         Peserta TO
                     </div>
 
                     <div
-                        class="kpi-value"
                         id="participants"
+                        class="kpi-value"
                     >
                         —
                     </div>
 
                     <div
-                        class="kpi-change"
                         id="participantNote"
+                        class="kpi-note"
                     >
-                        TO TKA 1
+                        —
                     </div>
 
                 </div>
 
 
-                <div class="card">
+
+                <div class="card kpi-card">
 
                     <div class="kpi-label">
                         Belum Ikut
                     </div>
 
                     <div
-                        class="kpi-value"
                         id="notParticipants"
+                        class="kpi-value"
                     >
                         —
                     </div>
 
-                    <div class="kpi-change">
+                    <div class="kpi-note">
                         Belum ada nilai
                     </div>
 
                 </div>
 
 
-                <div class="card">
+
+                <div class="card kpi-card">
 
                     <div class="kpi-label">
                         Rata-rata Skor
                     </div>
 
                     <div
-                        class="kpi-value"
                         id="averageScore"
+                        class="kpi-value"
                     >
                         —
                     </div>
 
-                    <div class="kpi-change">
-                        Rata-rata siswa
+                    <div class="kpi-note">
+                        Seluruh nilai tersedia
                     </div>
 
                 </div>
 
-            </section>
+
+            </div>
+
 
 
             <!-- CHART + INTERVENTION -->
 
-            <section class="content-grid">
+            <div class="two-column">
+
 
                 <div class="card">
 
@@ -267,15 +342,10 @@
                     <div
                         id="chart"
                         class="chart"
-                    >
-
-                        <div class="loading">
-                            Memuat data...
-                        </div>
-
-                    </div>
+                    ></div>
 
                 </div>
+
 
 
                 <div class="card">
@@ -287,23 +357,18 @@
 
                     <div
                         id="intervention"
-                        class="student-list"
-                    >
-
-                        <div class="loading">
-                            Memuat data...
-                        </div>
-
-                    </div>
+                    ></div>
 
                 </div>
 
-            </section>
+
+            </div>
+
 
 
             <!-- RANKING -->
 
-            <section class="card">
+            <div class="card">
 
                 <div class="card-title">
                     Top Performance
@@ -318,46 +383,53 @@
 
                             <tr>
 
-                                <th>#</th>
-                                <th>Siswa</th>
-                                <th>Sekolah</th>
-                                <th>Rata-rata</th>
-                                <th>Subtes</th>
-                                <th>Status</th>
+                                <th>
+                                    #
+                                </th>
+
+                                <th>
+                                    Siswa
+                                </th>
+
+                                <th>
+                                    Sekolah
+                                </th>
+
+                                <th>
+                                    Skor
+                                </th>
+
+                                <th>
+                                    Subtes
+                                </th>
+
+                                <th>
+                                    Status
+                                </th>
 
                             </tr>
 
                         </thead>
 
 
-                        <tbody id="rankingTable">
-
-                            <tr>
-
-                                <td
-                                    colspan="6"
-                                    class="loading"
-                                >
-                                    Memuat data...
-                                </td>
-
-                            </tr>
-
-                        </tbody>
+                        <tbody
+                            id="rankingTable"
+                        ></tbody>
 
                     </table>
 
                 </div>
 
-            </section>
+            </div>
+
 
         </section>
 
 
 
-        <!-- ================================
-             TKA
-        ================================= -->
+        <!-- =================================================
+             2. TKA
+        ================================================== -->
 
         <section
             id="page-tka"
@@ -365,13 +437,14 @@
             style="display:none;"
         >
 
-            <div class="topbar">
+
+            <div class="page-header">
 
                 <div>
 
-                    <h2>
+                    <h1>
                         🎯 TKA
-                    </h2>
+                    </h1>
 
                     <p>
                         Analisis performa TKA berdasarkan subtes
@@ -382,103 +455,107 @@
 
                 <select
                     id="tkaTestSelector"
-                    class="test-selector"
-                >
-
-                    <option value="TKA001">
-                        TO TKA 1
-                    </option>
-
-                </select>
+                ></select>
 
             </div>
 
 
-            <section class="kpi-grid">
 
-                <div class="card">
+            <!-- KPI -->
+
+            <div class="kpi-grid">
+
+
+                <div class="card kpi-card">
 
                     <div class="kpi-label">
                         Peserta
                     </div>
 
                     <div
-                        class="kpi-value"
                         id="tkaParticipants"
+                        class="kpi-value"
                     >
                         —
                     </div>
 
-                    <div class="kpi-change">
+                    <div class="kpi-note">
                         Siswa dengan nilai
                     </div>
 
                 </div>
 
 
-                <div class="card">
+
+                <div class="card kpi-card">
 
                     <div class="kpi-label">
                         Rata-rata
                     </div>
 
                     <div
-                        class="kpi-value"
                         id="tkaAverage"
+                        class="kpi-value"
                     >
                         —
                     </div>
 
-                    <div class="kpi-change">
-                        Rata-rata siswa
+                    <div class="kpi-note">
+                        Seluruh subtes
                     </div>
 
                 </div>
 
 
-                <div class="card">
+
+                <div class="card kpi-card">
 
                     <div class="kpi-label">
                         Skor Tertinggi
                     </div>
 
                     <div
-                        class="kpi-value"
                         id="tkaHighest"
+                        class="kpi-value"
                     >
                         —
                     </div>
 
-                    <div class="kpi-change">
+                    <div class="kpi-note">
                         Nilai tertinggi
                     </div>
 
                 </div>
 
 
-                <div class="card">
+
+                <div class="card kpi-card">
 
                     <div class="kpi-label">
                         Skor Terendah
                     </div>
 
                     <div
-                        class="kpi-value"
                         id="tkaLowest"
+                        class="kpi-value"
                     >
                         —
                     </div>
 
-                    <div class="kpi-change">
+                    <div class="kpi-note">
                         Perlu perhatian
                     </div>
 
                 </div>
 
-            </section>
+
+            </div>
 
 
-            <section class="card">
+
+            <!-- SUBTEST ANALYSIS -->
+
+            <div class="card">
 
                 <div class="card-title">
                     📊 Analisis Performa Subtes
@@ -488,24 +565,18 @@
                 <div
                     id="tkaSubjectGrid"
                     class="subject-grid"
-                >
+                ></div>
 
-                    <div class="loading">
-                        Memuat analisis subtes...
-                    </div>
-
-                </div>
-
-            </section>
+            </div>
 
 
-            <br>
 
+            <!-- TKA RANKING -->
 
-            <section class="card">
+            <div class="card">
 
                 <div class="card-title">
-                    🏆 Ranking Siswa — TKA
+                    🏆 Ranking TKA
                 </div>
 
 
@@ -517,165 +588,53 @@
 
                             <tr>
 
-                                <th>#</th>
-                                <th>Siswa</th>
-                                <th>Sekolah</th>
-                                <th>Rata-rata</th>
-                                <th>Subtes</th>
-                                <th>Status</th>
+                                <th>
+                                    #
+                                </th>
+
+                                <th>
+                                    Siswa
+                                </th>
+
+                                <th>
+                                    Sekolah
+                                </th>
+
+                                <th>
+                                    Rata-rata
+                                </th>
+
+                                <th>
+                                    Subtes
+                                </th>
+
+                                <th>
+                                    Status
+                                </th>
 
                             </tr>
 
                         </thead>
 
 
-                        <tbody id="tkaRankingTable">
-
-                            <tr>
-
-                                <td
-                                    colspan="6"
-                                    class="loading"
-                                >
-                                    Memuat ranking...
-                                </td>
-
-                            </tr>
-
-                        </tbody>
+                        <tbody
+                            id="tkaRankingTable"
+                        ></tbody>
 
                     </table>
-
-                </div>
-
-            </section>
-
-        </section>
-
-
-
-        <!-- ================================
-             SISWA
-        ================================= -->
-
-        <section
-            id="page-students"
-            class="page"
-            style="display:none;"
-        >
-
-            <div class="topbar">
-
-                <div>
-
-                    <h2>
-                        👥 Siswa
-                    </h2>
-
-                    <p>
-                        Profil dan detail nilai setiap siswa
-                    </p>
 
                 </div>
 
             </div>
 
 
-            <!-- SELECTOR -->
-
-            <section class="card student-selector-card">
-
-                <div class="selector-grid">
-
-                    <div>
-
-                        <label
-                            for="studentSelector"
-                            class="field-label"
-                        >
-                            Pilih Siswa
-                        </label>
-
-
-                        <select
-                            id="studentSelector"
-                            class="test-selector full-width"
-                        >
-
-                            <option>
-                                Memuat siswa...
-                            </option>
-
-                        </select>
-
-                    </div>
-
-
-                    <div>
-
-                        <label
-                            for="studentTestSelector"
-                            class="field-label"
-                        >
-                            Pilih TO
-                        </label>
-
-
-                        <select
-                            id="studentTestSelector"
-                            class="test-selector full-width"
-                        >
-
-                            <option value="TKA001">
-                                TO TKA 1
-                            </option>
-
-                        </select>
-
-                    </div>
-
-                </div>
-
-            </section>
-
-
-            <br>
-
-
-            <!-- PROFILE -->
-
-            <section
-                id="studentProfile"
-                class="card"
-            >
-
-                <div class="loading">
-                    Pilih siswa untuk melihat detail.
-                </div>
-
-            </section>
-
-
-            <br>
-
-
-            <!-- SCORES -->
-
-            <section id="studentScores">
-
-                <div class="loading">
-                    Pilih siswa untuk melihat nilai.
-                </div>
-
-            </section>
-
         </section>
 
 
 
-        <!-- ================================
-             UTBK
-        ================================= -->
+        <!-- =================================================
+             3. UTBK
+        ================================================== -->
 
         <section
             id="page-utbk"
@@ -683,43 +642,234 @@
             style="display:none;"
         >
 
-            <div class="topbar">
+
+            <div class="page-header">
 
                 <div>
 
-                    <h2>
+                    <h1>
                         🚀 UTBK
-                    </h2>
+                    </h1>
 
                     <p>
-                        Analisis performa UTBK
+                        Analisis performa siswa pada TO UTBK
                     </p>
 
                 </div>
 
+
+                <select
+                    id="utbkTestSelector"
+                ></select>
+
             </div>
 
 
-            <div class="card">
 
-                <div class="card-title">
-                    Modul UTBK
+            <div class="card empty-page">
+
+                <div class="empty-icon">
+                    🚀
                 </div>
 
+                <h2>
+                    Analisis UTBK
+                </h2>
+
                 <p>
-                    Modul UTBK akan dibangun setelah
-                    fondasi TKA selesai.
+                    Data dan analisis TO UTBK akan ditampilkan
+                    di halaman ini.
                 </p>
 
             </div>
+
 
         </section>
 
 
 
-        <!-- ================================
-             RANKING
-        ================================= -->
+        <!-- =================================================
+             4. DETAIL TO
+        ================================================== -->
+
+        <section
+            id="page-detail"
+            class="page"
+            style="display:none;"
+        >
+
+
+            <div class="page-header">
+
+                <div>
+
+                    <h1>
+                        📋 Detail TO
+                    </h1>
+
+                    <p>
+                        Rekap nilai lengkap setiap tryout
+                    </p>
+
+                </div>
+
+
+                <select
+                    id="detailTestSelector"
+                ></select>
+
+            </div>
+
+
+
+            <!-- TOOLBAR -->
+
+            <div class="card detail-toolbar">
+
+
+                <div class="detail-toolbar-left">
+
+                    <div class="search-box">
+
+                        <input
+                            type="text"
+                            id="detailSearch"
+                            placeholder="🔎 Cari nama siswa..."
+                        >
+
+                    </div>
+
+                </div>
+
+
+                <div class="detail-toolbar-right">
+
+                    <button
+                        id="printDetailButton"
+                        class="secondary-button"
+                        type="button"
+                    >
+
+                        🖨️
+                        Print
+
+                    </button>
+
+                </div>
+
+
+            </div>
+
+
+
+            <!-- DETAIL TABLE -->
+
+            <div
+                class="card detail-table-card"
+            >
+
+                <div
+                    class="detail-test-title"
+                    id="detailTestTitle"
+                >
+                    Detail TO
+                </div>
+
+
+                <div class="table-wrapper detail-table-wrapper">
+
+                    <table
+                        id="detailTable"
+                    >
+
+                        <thead
+                            id="detailTableHead"
+                        ></thead>
+
+
+                        <tbody
+                            id="detailTableBody"
+                        ></tbody>
+
+                    </table>
+
+                </div>
+
+
+            </div>
+
+
+        </section>
+
+
+
+        <!-- =================================================
+             5. SISWA
+        ================================================== -->
+
+        <section
+            id="page-students"
+            class="page"
+            style="display:none;"
+        >
+
+
+            <div class="page-header">
+
+                <div>
+
+                    <h1>
+                        👥 Siswa
+                    </h1>
+
+                    <p>
+                        Detail performa individual siswa
+                    </p>
+
+                </div>
+
+
+                <div class="student-selectors">
+
+
+                    <select
+                        id="studentSelector"
+                    ></select>
+
+
+                    <select
+                        id="studentTestSelector"
+                    ></select>
+
+
+                </div>
+
+            </div>
+
+
+
+            <!-- PROFILE -->
+
+            <div
+                id="studentProfile"
+            ></div>
+
+
+
+            <!-- SCORES -->
+
+            <div
+                id="studentScores"
+            ></div>
+
+
+        </section>
+
+
+
+        <!-- =================================================
+             6. RANKING
+        ================================================== -->
 
         <section
             id="page-ranking"
@@ -727,57 +877,107 @@
             style="display:none;"
         >
 
-            <div class="topbar">
+
+            <div class="page-header">
 
                 <div>
 
-                    <h2>
+                    <h1>
                         🏆 Ranking
-                    </h2>
+                    </h1>
 
                     <p>
-                        Ranking performa siswa
+                        Peringkat performa siswa
                     </p>
 
                 </div>
 
+
+                <select
+                    id="rankingTestSelector"
+                ></select>
+
             </div>
+
 
 
             <div class="card">
 
                 <div class="card-title">
-                    Ranking Center
+                    Ranking Siswa
                 </div>
 
-                <p>
-                    Ranking lintas TO akan dibangun
-                    setelah modul TKA dan UTBK tersedia.
-                </p>
+
+                <div class="table-wrapper">
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    #
+                                </th>
+
+                                <th>
+                                    Siswa
+                                </th>
+
+                                <th>
+                                    Sekolah
+                                </th>
+
+                                <th>
+                                    Rata-rata
+                                </th>
+
+                                <th>
+                                    Subtes
+                                </th>
+
+                                <th>
+                                    Status
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody
+                            id="rankingPageTable"
+                        ></tbody>
+
+                    </table>
+
+                </div>
 
             </div>
+
 
         </section>
 
 
 
-        <!-- ================================
-             INTERVENTION
-        ================================= -->
+        <!-- =================================================
+             7. INTERVENTION
+        ================================================== -->
 
         <section
-            id="page-intervention"
+            id="page-intervention-page"
             class="page"
             style="display:none;"
         >
 
-            <div class="topbar">
+
+            <div class="page-header">
 
                 <div>
 
-                    <h2>
+                    <h1>
                         🚨 Intervention
-                    </h2>
+                    </h1>
 
                     <p>
                         Siswa yang membutuhkan perhatian
@@ -785,32 +985,47 @@
 
                 </div>
 
+
+                <select
+                    id="interventionTestSelector"
+                ></select>
+
             </div>
+
 
 
             <div class="card">
 
                 <div class="card-title">
-                    Intervention Center
+                    Siswa Perlu Perhatian
                 </div>
 
-                <p>
-                    Sistem intervention akan dikembangkan
-                    setelah data beberapa TO tersedia.
-                </p>
+
+                <div
+                    id="interventionPageList"
+                ></div>
 
             </div>
 
+
         </section>
 
+
     </main>
+
 
 </div>
 
 
-<!-- JAVASCRIPT -->
 
-<script src="./js/app.js"></script>
+<!-- =====================================================
+     JAVASCRIPT
+====================================================== -->
+
+<script
+    src="js/app.js"
+></script>
+
 
 </body>
 
