@@ -12,10 +12,14 @@ let dashboardData = {
 
 let currentTestId = "TKA001";
 
+let currentStudentId = "";
 
-/* =========================================
+let currentStudentTestId = "TKA001";
+
+
+/* =========================================================
    LOAD DATA
-========================================= */
+========================================================= */
 
 async function loadDashboardData() {
 
@@ -23,6 +27,7 @@ async function loadDashboardData() {
 
         const response =
             await fetch(API_URL);
+
 
         if (!response.ok) {
 
@@ -59,6 +64,8 @@ async function loadDashboardData() {
 
         populateTestSelectors();
 
+        populateStudentSelector();
+
 
         renderOverview(
             currentTestId
@@ -70,7 +77,25 @@ async function loadDashboardData() {
         );
 
 
-        return dashboardData;
+        if (
+            dashboardData.students &&
+            dashboardData.students.length
+        ) {
+
+            currentStudentId =
+                dashboardData.students[0]
+                    .student_id;
+
+
+            document.getElementById(
+                "studentSelector"
+            ).value =
+                currentStudentId;
+
+
+            renderStudentDetail();
+
+        }
 
 
     } catch (error) {
@@ -86,17 +111,56 @@ async function loadDashboardData() {
             error.message
         );
 
-
-        return null;
-
     }
 
 }
 
 
-/* =========================================
-   TEST SELECTOR
-========================================= */
+/* =========================================================
+   TEST SELECTORS
+========================================================= */
+
+function getTests() {
+
+    return (
+        dashboardData.tests || []
+    );
+
+}
+
+
+function getTKATests() {
+
+    const tests =
+        getTests();
+
+
+    const filtered =
+        tests.filter(
+            test =>
+                String(
+                    test.jenis || ""
+                ).toUpperCase()
+                === "TKA"
+                ||
+                String(
+                    test.test_id || ""
+                ).toUpperCase()
+                .startsWith("TKA")
+        );
+
+
+    return filtered.length
+        ? filtered
+        : [
+            {
+                test_id: "TKA001",
+                nama: "TO TKA 1"
+            }
+        ];
+
+}
+
 
 function populateTestSelectors() {
 
@@ -108,6 +172,10 @@ function populateTestSelectors() {
 
         document.getElementById(
             "tkaTestSelector"
+        ),
+
+        document.getElementById(
+            "studentTestSelector"
         )
 
     ].filter(Boolean);
@@ -119,39 +187,7 @@ function populateTestSelectors() {
             selector.innerHTML = "";
 
 
-            const tests =
-                dashboardData.tests || [];
-
-
-            const tkaTests =
-                tests.filter(
-                    test =>
-                        String(
-                            test.jenis || ""
-                        ).toUpperCase()
-                        === "TKA"
-                        ||
-                        String(
-                            test.test_id || ""
-                        ).toUpperCase()
-                        .startsWith("TKA")
-                );
-
-
-            const source =
-                tkaTests.length
-                    ? tkaTests
-                    : [
-                        {
-                            test_id:
-                                "TKA001",
-                            nama:
-                                "TO TKA 1"
-                        }
-                    ];
-
-
-            source.forEach(
+            getTKATests().forEach(
                 test => {
 
                     const option =
@@ -177,43 +213,241 @@ function populateTestSelectors() {
                 }
             );
 
-
-            selector.value =
-                currentTestId;
-
-
-            selector.addEventListener(
-                "change",
-                function () {
-
-                    currentTestId =
-                        this.value;
+        }
+    );
 
 
-                    renderOverview(
-                        currentTestId
-                    );
+    const overviewSelector =
+        document.getElementById(
+            "testSelector"
+        );
 
 
-                    renderTKA(
-                        currentTestId
-                    );
+    if (overviewSelector) {
 
-                }
+        overviewSelector.value =
+            currentTestId;
+
+    }
+
+
+    const tkaSelector =
+        document.getElementById(
+            "tkaTestSelector"
+        );
+
+
+    if (tkaSelector) {
+
+        tkaSelector.value =
+            currentTestId;
+
+    }
+
+
+    const studentTestSelector =
+        document.getElementById(
+            "studentTestSelector"
+        );
+
+
+    if (studentTestSelector) {
+
+        studentTestSelector.value =
+            currentStudentTestId;
+
+    }
+
+}
+
+
+/* =========================================================
+   STUDENT SELECTOR
+========================================================= */
+
+function populateStudentSelector() {
+
+    const selector =
+        document.getElementById(
+            "studentSelector"
+        );
+
+
+    if (!selector) return;
+
+
+    selector.innerHTML = "";
+
+
+    (
+        dashboardData.students || []
+    )
+
+    .sort(
+        (
+            a,
+            b
+        ) =>
+            String(
+                a.nama || ""
+            ).localeCompare(
+                String(
+                    b.nama || ""
+                )
+            )
+    )
+
+    .forEach(
+        student => {
+
+            const option =
+                document.createElement(
+                    "option"
+                );
+
+
+            option.value =
+                student.student_id;
+
+
+            option.textContent =
+                student.nama;
+
+
+            selector.appendChild(
+                option
             );
 
         }
     );
 
+
+    if (
+        currentStudentId
+    ) {
+
+        selector.value =
+            currentStudentId;
+
+    }
+
 }
 
 
-/* =========================================
+/* =========================================================
+   EVENT LISTENERS
+========================================================= */
+
+function initSelectors() {
+
+    const overviewSelector =
+        document.getElementById(
+            "testSelector"
+        );
+
+
+    if (overviewSelector) {
+
+        overviewSelector.addEventListener(
+            "change",
+            function () {
+
+                currentTestId =
+                    this.value;
+
+
+                renderOverview(
+                    currentTestId
+                );
+
+            }
+        );
+
+    }
+
+
+    const tkaSelector =
+        document.getElementById(
+            "tkaTestSelector"
+        );
+
+
+    if (tkaSelector) {
+
+        tkaSelector.addEventListener(
+            "change",
+            function () {
+
+                currentTestId =
+                    this.value;
+
+
+                renderTKA(
+                    currentTestId
+                );
+
+            }
+        );
+
+    }
+
+
+    const studentSelector =
+        document.getElementById(
+            "studentSelector"
+        );
+
+
+    if (studentSelector) {
+
+        studentSelector.addEventListener(
+            "change",
+            function () {
+
+                currentStudentId =
+                    this.value;
+
+
+                renderStudentDetail();
+
+            }
+        );
+
+    }
+
+
+    const studentTestSelector =
+        document.getElementById(
+            "studentTestSelector"
+        );
+
+
+    if (studentTestSelector) {
+
+        studentTestSelector.addEventListener(
+            "change",
+            function () {
+
+                currentStudentTestId =
+                    this.value;
+
+
+                renderStudentDetail();
+
+            }
+        );
+
+    }
+
+}
+
+
+/* =========================================================
    RESULT HELPERS
-========================================= */
+========================================================= */
 
 function getResults(
-    testId = currentTestId
+    testId
 ) {
 
     return (
@@ -226,26 +460,45 @@ function getResults(
 }
 
 
+function getStudentResults(
+    studentId,
+    testId
+) {
+
+    return getResults(
+        testId
+    ).filter(
+        result =>
+            result.student_id ===
+            studentId
+    );
+
+}
+
+
 function getParticipants(
-    testId = currentTestId
+    testId
 ) {
 
     return [
         ...new Set(
-            getResults(testId)
-                .map(
-                    result =>
-                        result.student_id
-                )
+            getResults(
+                testId
+            )
+
+            .map(
+                result =>
+                    result.student_id
+            )
         )
     ];
 
 }
 
 
-/* =========================================
+/* =========================================================
    STUDENT MAP
-========================================= */
+========================================================= */
 
 function getStudentMap() {
 
@@ -276,12 +529,14 @@ function getStudentMap() {
 }
 
 
-/* =========================================
+/* =========================================================
    STUDENT ANALYSIS
-========================================= */
+   IMPORTANT:
+   Average is calculated PER STUDENT first.
+========================================================= */
 
 function calculateStudentAnalysis(
-    testId = currentTestId
+    testId
 ) {
 
     const studentMap =
@@ -289,7 +544,9 @@ function calculateStudentAnalysis(
 
 
     const results =
-        getResults(testId);
+        getResults(
+            testId
+        );
 
 
     results.forEach(
@@ -404,28 +661,55 @@ function calculateStudentAnalysis(
 }
 
 
-/* =========================================
+/* =========================================================
    OVERVIEW
-========================================= */
+========================================================= */
 
 function calculateOverview(
-    testId = currentTestId
+    testId
 ) {
 
     const students =
         dashboardData.students || [];
 
 
-    const results =
-        getResults(testId);
+    const ranking =
+        calculateStudentAnalysis(
+            testId
+        );
 
 
     const participants =
-        getParticipants(testId);
+        ranking.length;
 
 
-    const scores =
-        results
+    const studentAverages =
+        ranking.map(
+            student =>
+                student.average
+        );
+
+
+    const average =
+        studentAverages.length
+
+            ? studentAverages.reduce(
+                (
+                    sum,
+                    score
+                ) =>
+                    sum + score,
+                0
+            ) /
+            studentAverages.length
+
+            : 0;
+
+
+    const allScores =
+        getResults(
+            testId
+        )
 
         .map(
             result =>
@@ -442,46 +726,34 @@ function calculateOverview(
         );
 
 
-    const average =
-        scores.length
-
-            ? scores.reduce(
-                (
-                    sum,
-                    score
-                ) =>
-                    sum + score,
-                0
-            ) / scores.length
-
-            : 0;
-
-
     return {
 
         totalStudents:
             students.length,
 
-        participants:
-            participants.length,
+        participants,
 
         notParticipants:
             Math.max(
                 students.length -
-                participants.length,
+                participants,
                 0
             ),
 
         average,
 
         highest:
-            scores.length
-                ? Math.max(...scores)
+            allScores.length
+                ? Math.max(
+                    ...allScores
+                )
                 : 0,
 
         lowest:
-            scores.length
-                ? Math.min(...scores)
+            allScores.length
+                ? Math.min(
+                    ...allScores
+                )
                 : 0
 
     };
@@ -489,9 +761,9 @@ function calculateOverview(
 }
 
 
-/* =========================================
+/* =========================================================
    STATUS
-========================================= */
+========================================================= */
 
 function getStudentStatus(
     average
@@ -544,12 +816,37 @@ function getStudentStatus(
 }
 
 
-/* =========================================
+/* =========================================================
+   TEST NAME
+========================================================= */
+
+function getTestName(
+    testId
+) {
+
+    const test =
+        getTests().find(
+            item =>
+                item.test_id ===
+                testId
+        );
+
+
+    return (
+        test?.nama ||
+        test?.name ||
+        testId
+    );
+
+}
+
+
+/* =========================================================
    OVERVIEW RENDER
-========================================= */
+========================================================= */
 
 function renderOverview(
-    testId = currentTestId
+    testId
 ) {
 
     const overview =
@@ -586,7 +883,9 @@ function renderOverview(
 
     setText(
         "participantNote",
-        getTestName(testId)
+        getTestName(
+            testId
+        )
     );
 
 
@@ -613,36 +912,9 @@ function renderOverview(
 }
 
 
-/* =========================================
-   TEST NAME
-========================================= */
-
-function getTestName(
-    testId
-) {
-
-    const test =
-        (
-            dashboardData.tests ||
-            []
-        ).find(
-            item =>
-                item.test_id === testId
-        );
-
-
-    return (
-        test?.nama ||
-        test?.name ||
-        testId
-    );
-
-}
-
-
-/* =========================================
+/* =========================================================
    RANKING
-========================================= */
+========================================================= */
 
 function renderRanking(
     ranking
@@ -714,17 +986,31 @@ function renderRanking(
                     </td>
 
                     <td>
-
                         <span class="
                             status
                             ${status.className}
                         ">
                             ${status.label}
                         </span>
-
                     </td>
 
                 `;
+
+
+                row.style.cursor =
+                    "pointer";
+
+
+                row.addEventListener(
+                    "click",
+                    () => {
+
+                        openStudent(
+                            student.student_id
+                        );
+
+                    }
+                );
 
 
                 table.appendChild(
@@ -737,116 +1023,274 @@ function renderRanking(
 }
 
 
-/* =========================================
-   INTERVENTION
-========================================= */
+/* =========================================================
+   OPEN STUDENT
+========================================================= */
 
-function renderIntervention(
-    ranking
+function openStudent(
+    studentId
 ) {
 
-    const container =
+    currentStudentId =
+        studentId;
+
+
+    currentStudentTestId =
+        currentTestId;
+
+
+    const studentSelector =
         document.getElementById(
-            "intervention"
+            "studentSelector"
         );
 
 
-    if (!container) return;
-
-
-    container.innerHTML = "";
-
-
-    const attention =
-        ranking
-
-        .filter(
-            student =>
-                student.average < 600
-        )
-
-        .sort(
-            (
-                a,
-                b
-            ) =>
-                a.average -
-                b.average
-        )
-
-        .slice(
-            0,
-            5
+    const studentTestSelector =
+        document.getElementById(
+            "studentTestSelector"
         );
 
 
-    if (
-        !attention.length
-    ) {
+    if (studentSelector) {
 
-        container.innerHTML = `
+        studentSelector.value =
+            studentId;
 
-            <div class="student">
+    }
 
-                <div>
 
-                    <div class="student-name">
-                        Tidak ada siswa
-                    </div>
+    if (studentTestSelector) {
 
-                    <div class="student-subtitle">
-                        Semua siswa berada di atas 600.
-                    </div>
+        studentTestSelector.value =
+            currentTestId;
 
-                </div>
+    }
 
-                <span class="status green">
-                    GOOD
-                </span>
 
+    document
+        .querySelectorAll(
+            ".menu button"
+        )
+
+        .forEach(
+            button =>
+                button.classList
+                    .remove(
+                        "active"
+                    )
+        );
+
+
+    const studentsButton =
+        document.querySelector(
+            '.menu button[data-page="students"]'
+        );
+
+
+    if (studentsButton) {
+
+        studentsButton.classList.add(
+            "active"
+        );
+
+    }
+
+
+    document
+        .querySelectorAll(
+            ".page"
+        )
+
+        .forEach(
+            page =>
+                page.style.display =
+                    "none"
+        );
+
+
+    const studentPage =
+        document.getElementById(
+            "page-students"
+        );
+
+
+    if (studentPage) {
+
+        studentPage.style.display =
+            "block";
+
+    }
+
+
+    renderStudentDetail();
+
+}
+
+
+/* =========================================================
+   STUDENT DETAIL
+========================================================= */
+
+function renderStudentDetail() {
+
+    const profile =
+        document.getElementById(
+            "studentProfile"
+        );
+
+
+    const scores =
+        document.getElementById(
+            "studentScores"
+        );
+
+
+    if (!profile || !scores) return;
+
+
+    const student =
+        (
+            dashboardData.students || []
+        ).find(
+            item =>
+                item.student_id ===
+                currentStudentId
+        );
+
+
+    if (!student) {
+
+        profile.innerHTML = `
+
+            <div class="empty-state">
+                Siswa tidak ditemukan.
             </div>
 
         `;
+
+
+        scores.innerHTML = "";
+
 
         return;
 
     }
 
 
-    attention.forEach(
-        student => {
-
-            const status =
-                getStudentStatus(
-                    student.average
-                );
+    const results =
+        getStudentResults(
+            currentStudentId,
+            currentStudentTestId
+        );
 
 
-            const div =
-                document.createElement(
-                    "div"
-                );
+    const numericResults =
+        results
+
+        .map(
+            result => ({
+                ...result,
+                nilai:
+                    Number(
+                        result.nilai
+                    )
+            })
+        )
+
+        .filter(
+            result =>
+                Number.isFinite(
+                    result.nilai
+                )
+        );
 
 
-            div.className =
-                "student";
+    const values =
+        numericResults.map(
+            result =>
+                result.nilai
+        );
 
 
-            div.innerHTML = `
+    const average =
+        values.length
+            ? values.reduce(
+                (
+                    sum,
+                    value
+                ) =>
+                    sum + value,
+                0
+            ) /
+            values.length
+            : 0;
 
-                <div>
 
-                    <div class="student-name">
-                        ${escapeHTML(
-                            student.nama
-                        )}
-                    </div>
+    const highest =
+        values.length
+            ? Math.max(
+                ...values
+            )
+            : 0;
 
-                    <div class="student-subtitle">
-                        Rata-rata:
-                        ${student.average.toFixed(1)}
-                    </div>
 
+    const lowest =
+        values.length
+            ? Math.min(
+                ...values
+            )
+            : 0;
+
+
+    const status =
+        getStudentStatus(
+            average
+        );
+
+
+    profile.innerHTML = `
+
+        <div class="student-profile">
+
+            <div>
+
+                <div class="profile-name">
+                    ${escapeHTML(
+                        student.nama
+                    )}
+                </div>
+
+                <div class="profile-info">
+
+                    ${escapeHTML(
+                        student.sekolah || "-"
+                    )}
+
+                    • 
+
+                    ${escapeHTML(
+                        student.kelas || "-"
+                    )}
+
+                    • 
+
+                    ${escapeHTML(
+                        student.rombel || "-"
+                    )}
+
+                </div>
+
+            </div>
+
+
+            <div class="profile-test">
+
+                <div class="profile-test-name">
+                    ${escapeHTML(
+                        getTestName(
+                            currentStudentTestId
+                        )
+                    )}
                 </div>
 
                 <span class="
@@ -856,133 +1300,351 @@ function renderIntervention(
                     ${status.label}
                 </span>
 
-            `;
+            </div>
+
+        </div>
 
 
-            container.appendChild(
-                div
-            );
+        <div class="profile-kpi-grid">
 
-        }
+            <div>
+
+                <div class="profile-kpi-label">
+                    Rata-rata
+                </div>
+
+                <div class="profile-kpi-value">
+                    ${
+                        average
+                            ? average.toFixed(1)
+                            : "—"
+                    }
+                </div>
+
+            </div>
+
+
+            <div>
+
+                <div class="profile-kpi-label">
+                    Subtes
+                </div>
+
+                <div class="profile-kpi-value">
+                    ${values.length}
+                </div>
+
+            </div>
+
+
+            <div>
+
+                <div class="profile-kpi-label">
+                    Tertinggi
+                </div>
+
+                <div class="profile-kpi-value">
+                    ${highest || "—"}
+                </div>
+
+            </div>
+
+
+            <div>
+
+                <div class="profile-kpi-label">
+                    Terendah
+                </div>
+
+                <div class="profile-kpi-value">
+                    ${lowest || "—"}
+                </div>
+
+            </div>
+
+        </div>
+
+    `;
+
+
+    renderStudentScores(
+        numericResults
     );
 
 }
 
 
-/* =========================================
-   CHART
-========================================= */
+/* =========================================================
+   SUBTEST GROUP
+========================================================= */
 
-function renderChart(
-    ranking
+function getSubtest(
+    subtestId
 ) {
 
-    const chart =
+    return (
+        dashboardData.subtests || []
+    ).find(
+        subtest =>
+            subtest.subtest_id ===
+            subtestId
+    );
+
+}
+
+
+/*
+   Berdasarkan struktur TKA 2026:
+   TKA01 MAT
+   TKA02 B.IND
+   TKA03 ENG
+
+   = MAPEL WAJIB
+
+   TKA04-TKA14
+   = MAPEL PILIHAN
+*/
+
+function isMandatoryTKA(
+    subtestId
+) {
+
+    return [
+        "TKA01",
+        "TKA02",
+        "TKA03"
+    ].includes(
+        subtestId
+    );
+
+}
+
+
+/* =========================================================
+   STUDENT SCORES
+========================================================= */
+
+function renderStudentScores(
+    results
+) {
+
+    const container =
         document.getElementById(
-            "chart"
+            "studentScores"
         );
 
 
-    if (!chart) return;
+    if (!container) return;
 
 
-    chart.innerHTML = "";
-
-
-    const top =
-        ranking.slice(
-            0,
-            6
+    const mandatory =
+        results.filter(
+            result =>
+                isMandatoryTKA(
+                    result.subtest_id
+                )
         );
 
 
-    if (!top.length) {
+    const optional =
+        results.filter(
+            result =>
+                !isMandatoryTKA(
+                    result.subtest_id
+                )
+        );
 
-        chart.innerHTML =
-            '<div class="loading">Belum ada data.</div>';
 
-        return;
+    container.innerHTML = `
+
+        <div class="score-section">
+
+            <div class="card">
+
+                <div class="score-section-title">
+                    📘 Mapel Wajib
+                </div>
+
+                <div class="score-grid">
+
+                    ${
+                        renderScoreCards(
+                            mandatory
+                        )
+                    }
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <br>
+
+
+        <div class="score-section">
+
+            <div class="card">
+
+                <div class="score-section-title">
+                    📚 Mapel Pilihan
+                </div>
+
+                ${
+                    optional.length
+
+                        ? `
+                            <div class="score-grid">
+                                ${
+                                    renderScoreCards(
+                                        optional
+                                    )
+                                }
+                            </div>
+                          `
+
+                        : `
+                            <div class="empty-score">
+                                Siswa tidak mengikuti
+                                mapel pilihan pada TO ini.
+                            </div>
+                          `
+                }
+
+            </div>
+
+        </div>
+
+    `;
+
+}
+
+
+/* =========================================================
+   SCORE CARDS
+========================================================= */
+
+function renderScoreCards(
+    results
+) {
+
+    if (!results.length) {
+
+        return `
+
+            <div class="empty-score">
+                Belum ada nilai.
+            </div>
+
+        `;
 
     }
 
 
-    const maxScore =
-        Math.max(
-            ...top.map(
-                student =>
-                    student.average
-            ),
-            1
-        );
+    return results
+
+        .sort(
+            (
+                a,
+                b
+            ) =>
+                a.subtest_id
+                    .localeCompare(
+                        b.subtest_id
+                    )
+        )
+
+        .map(
+            result => {
+
+                const subtest =
+                    getSubtest(
+                        result.subtest_id
+                    );
 
 
-    top.forEach(
-        student => {
-
-            const wrapper =
-                document.createElement(
-                    "div"
-                );
+                const name =
+                    subtest?.subtes ||
+                    subtest?.nama ||
+                    subtest?.name ||
+                    result.subtest_id;
 
 
-            wrapper.className =
-                "bar-wrapper";
+                const score =
+                    Number(
+                        result.nilai
+                    );
 
 
-            const height =
-                Math.max(
-                    (
-                        student.average /
-                        maxScore
-                    ) * 85,
-                    5
-                );
+                let scoreClass =
+                    "green";
 
 
-            wrapper.innerHTML = `
+                if (
+                    score < 500
+                ) {
 
-                <div class="bar-value">
-                    ${student.average.toFixed(0)}
-                </div>
+                    scoreClass =
+                        "red";
 
-                <div
-                    class="bar"
-                    style="
-                        height:${height}%;
-                    "
-                ></div>
+                } else if (
+                    score < 600
+                ) {
 
-                <div class="bar-label">
-                    ${escapeHTML(
-                        getFirstName(
-                            student.nama
-                        )
-                    )}
-                </div>
+                    scoreClass =
+                        "yellow";
 
-            `;
+                }
 
 
-            chart.appendChild(
-                wrapper
-            );
+                return `
 
-        }
-    );
+                    <div class="score-card">
+
+                        <div class="score-card-name">
+                            ${escapeHTML(
+                                name
+                            )}
+                        </div>
+
+                        <div class="
+                            score-card-value
+                            ${scoreClass}
+                        ">
+                            ${score}
+                        </div>
+
+                        <div class="score-card-id">
+                            ${escapeHTML(
+                                result.subtest_id
+                            )}
+                        </div>
+
+                    </div>
+
+                `;
+
+            }
+        )
+
+        .join("");
 
 }
 
 
-/* =========================================
+/* =========================================================
    TKA ANALYSIS
-========================================= */
+========================================================= */
 
 function calculateTKASubjects(
-    testId = currentTestId
+    testId
 ) {
 
     const results =
-        getResults(testId);
+        getResults(
+            testId
+        );
 
 
     const subjectMap = {};
@@ -1084,7 +1746,8 @@ function calculateTKASubjects(
                         ) =>
                             sum + score,
                         0
-                    ) / scores.length
+                    ) /
+                    scores.length
 
                     : 0;
 
@@ -1120,12 +1783,12 @@ function calculateTKASubjects(
 }
 
 
-/* =========================================
+/* =========================================================
    TKA RENDER
-========================================= */
+========================================================= */
 
 function renderTKA(
-    testId = currentTestId
+    testId
 ) {
 
     const ranking =
@@ -1182,9 +1845,9 @@ function renderTKA(
 }
 
 
-/* =========================================
+/* =========================================================
    TKA SUBJECT CARDS
-========================================= */
+========================================================= */
 
 function renderTKASubjects(
     testId
@@ -1208,21 +1871,6 @@ function renderTKASubjects(
         );
 
 
-    if (!subjects.length) {
-
-        container.innerHTML = `
-
-            <div class="loading">
-                Belum ada data subtes TKA.
-            </div>
-
-        `;
-
-        return;
-
-    }
-
-
     subjects.forEach(
         subject => {
 
@@ -1237,7 +1885,7 @@ function renderTKASubjects(
 
 
             let scoreClass =
-                "";
+                "green";
 
 
             if (
@@ -1253,11 +1901,6 @@ function renderTKASubjects(
 
                 scoreClass =
                     "yellow";
-
-            } else {
-
-                scoreClass =
-                    "green";
 
             }
 
@@ -1282,14 +1925,17 @@ function renderTKASubjects(
                 </div>
 
                 <div class="subject-meta">
+
                     ${subject.participants}
                     peserta
+
                     ${
                         subject.highest
                             ? " • Max " +
                               subject.highest
                             : ""
                     }
+
                 </div>
 
             `;
@@ -1305,9 +1951,9 @@ function renderTKASubjects(
 }
 
 
-/* =========================================
+/* =========================================================
    TKA RANKING
-========================================= */
+========================================================= */
 
 function renderTKARanking(
     ranking
@@ -1325,82 +1971,345 @@ function renderTKARanking(
     table.innerHTML = "";
 
 
-    ranking
-        .forEach(
-            (
-                student,
-                index
-            ) => {
+    ranking.forEach(
+        (
+            student,
+            index
+        ) => {
 
-                const status =
-                    getStudentStatus(
-                        student.average
-                    );
-
-
-                const row =
-                    document.createElement(
-                        "tr"
-                    );
-
-
-                row.innerHTML = `
-
-                    <td>
-                        ${index + 1}
-                    </td>
-
-                    <td>
-                        <strong>
-                            ${escapeHTML(
-                                student.nama
-                            )}
-                        </strong>
-                    </td>
-
-                    <td>
-                        ${escapeHTML(
-                            student.sekolah
-                        )}
-                    </td>
-
-                    <td>
-                        <strong>
-                            ${student.average.toFixed(1)}
-                        </strong>
-                    </td>
-
-                    <td>
-                        ${student.count}
-                    </td>
-
-                    <td>
-
-                        <span class="
-                            status
-                            ${status.className}
-                        ">
-                            ${status.label}
-                        </span>
-
-                    </td>
-
-                `;
-
-
-                table.appendChild(
-                    row
+            const status =
+                getStudentStatus(
+                    student.average
                 );
 
-            }
-        );
+
+            const row =
+                document.createElement(
+                    "tr"
+                );
+
+
+            row.innerHTML = `
+
+                <td>
+                    ${index + 1}
+                </td>
+
+                <td>
+                    <strong>
+                        ${escapeHTML(
+                            student.nama
+                        )}
+                    </strong>
+                </td>
+
+                <td>
+                    ${escapeHTML(
+                        student.sekolah
+                    )}
+                </td>
+
+                <td>
+                    <strong>
+                        ${student.average.toFixed(1)}
+                    </strong>
+                </td>
+
+                <td>
+                    ${student.count}
+                </td>
+
+                <td>
+                    <span class="
+                        status
+                        ${status.className}
+                    ">
+                        ${status.label}
+                    </span>
+                </td>
+
+            `;
+
+
+            row.style.cursor =
+                "pointer";
+
+
+            row.addEventListener(
+                "click",
+                () => {
+
+                    openStudent(
+                        student.student_id
+                    );
+
+                }
+            );
+
+
+            table.appendChild(
+                row
+            );
+
+        }
+    );
 
 }
 
 
-/* =========================================
+/* =========================================================
+   INTERVENTION
+========================================================= */
+
+function renderIntervention(
+    ranking
+) {
+
+    const container =
+        document.getElementById(
+            "intervention"
+        );
+
+
+    if (!container) return;
+
+
+    container.innerHTML = "";
+
+
+    const attention =
+        ranking
+
+        .filter(
+            student =>
+                student.average < 600
+        )
+
+        .sort(
+            (
+                a,
+                b
+            ) =>
+                a.average -
+                b.average
+        )
+
+        .slice(
+            0,
+            5
+        );
+
+
+    if (!attention.length) {
+
+        container.innerHTML = `
+
+            <div class="student">
+
+                <div>
+
+                    <div class="student-name">
+                        Tidak ada siswa
+                    </div>
+
+                    <div class="student-subtitle">
+                        Semua siswa berada di atas 600.
+                    </div>
+
+                </div>
+
+                <span class="status green">
+                    GOOD
+                </span>
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    attention.forEach(
+        student => {
+
+            const status =
+                getStudentStatus(
+                    student.average
+                );
+
+
+            const div =
+                document.createElement(
+                    "div"
+                );
+
+
+            div.className =
+                "student";
+
+
+            div.innerHTML = `
+
+                <div>
+
+                    <div class="student-name">
+                        ${escapeHTML(
+                            student.nama
+                        )}
+                    </div>
+
+                    <div class="student-subtitle">
+                        Rata-rata:
+                        ${student.average.toFixed(1)}
+                    </div>
+
+                </div>
+
+                <span class="
+                    status
+                    ${status.className}
+                ">
+                    ${status.label}
+                </span>
+
+            `;
+
+
+            div.style.cursor =
+                "pointer";
+
+
+            div.addEventListener(
+                "click",
+                () => {
+
+                    openStudent(
+                        student.student_id
+                    );
+
+                }
+            );
+
+
+            container.appendChild(
+                div
+            );
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   CHART
+========================================================= */
+
+function renderChart(
+    ranking
+) {
+
+    const chart =
+        document.getElementById(
+            "chart"
+        );
+
+
+    if (!chart) return;
+
+
+    chart.innerHTML = "";
+
+
+    const top =
+        ranking.slice(
+            0,
+            6
+        );
+
+
+    if (!top.length) {
+
+        chart.innerHTML =
+            '<div class="loading">Belum ada data.</div>';
+
+        return;
+
+    }
+
+
+    const maxScore =
+        Math.max(
+            ...top.map(
+                student =>
+                    student.average
+            ),
+            1
+        );
+
+
+    top.forEach(
+        student => {
+
+            const wrapper =
+                document.createElement(
+                    "div"
+                );
+
+
+            wrapper.className =
+                "bar-wrapper";
+
+
+            const height =
+                Math.max(
+                    (
+                        student.average /
+                        maxScore
+                    ) * 85,
+                    5
+                );
+
+
+            wrapper.innerHTML = `
+
+                <div class="bar-value">
+                    ${student.average.toFixed(0)}
+                </div>
+
+                <div
+                    class="bar"
+                    style="
+                        height:${height}%;
+                    "
+                ></div>
+
+                <div class="bar-label">
+                    ${escapeHTML(
+                        getFirstName(
+                            student.nama
+                        )
+                    )}
+                </div>
+
+            `;
+
+
+            chart.appendChild(
+                wrapper
+            );
+
+        }
+    );
+
+}
+
+
+/* =========================================================
    NAVIGATION
-========================================= */
+========================================================= */
 
 function initNavigation() {
 
@@ -1451,7 +2360,8 @@ function initNavigation() {
 
                     const target =
                         document.getElementById(
-                            "page-" + page
+                            "page-" +
+                            page
                         );
 
 
@@ -1459,6 +2369,16 @@ function initNavigation() {
 
                         target.style.display =
                             "block";
+
+                    }
+
+
+                    if (
+                        page ===
+                        "students"
+                    ) {
+
+                        renderStudentDetail();
 
                     }
 
@@ -1471,9 +2391,9 @@ function initNavigation() {
 }
 
 
-/* =========================================
+/* =========================================================
    UTILITIES
-========================================= */
+========================================================= */
 
 function setText(
     id,
@@ -1577,13 +2497,15 @@ function showError(
 }
 
 
-/* =========================================
+/* =========================================================
    INITIALIZE
-========================================= */
+========================================================= */
 
 async function initDashboard() {
 
     initNavigation();
+
+    initSelectors();
 
     await loadDashboardData();
 
