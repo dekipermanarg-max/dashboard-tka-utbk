@@ -6,7 +6,7 @@
     let logo=brand.querySelector('.bac-header-logo');
     if(!logo){
       logo=document.createElement('img'); logo.className='bac-header-logo';
-      logo.src='logo-header-ba.png?v=20260825n'; logo.alt='Brain Academy by Ruangguru';
+      logo.src='logo-header-ba.png?v=20260825o'; logo.alt='Brain Academy by Ruangguru';
       brand.prepend(logo);
     }
     let title=brand.querySelector('.brand-title');
@@ -38,8 +38,10 @@
     card('totalStudents')?.classList.add('kpi-total-students');
     card('totalStudents')?.querySelector('.kpi-note')?.remove();
     ['tkaParticipants','tkaHighest','tkaLowest'].forEach(id=>card(id)?.querySelector('.kpi-note')?.remove());
+    /* TKA focuses on subject scores, not one overall student-average score. */
+    card('tkaAverage')?.remove();
     const tkaTitle=document.querySelector('#page-tka .card-title');
-    if(tkaTitle)tkaTitle.textContent='📊 Analisis performa TO TKA berdasarkan mapel — nilai rata-rata';
+    if(tkaTitle)tkaTitle.textContent='📊 Analisis performa TO TKA berdasarkan mapel — nilai rata-rata per mapel';
     document.getElementById('tkaRankingTable')?.closest('.card')?.remove();
     document.querySelectorAll('#page-overview .card-title').forEach(e=>{if(e.textContent.trim()==='Top Performance')e.textContent='🏆 10 Siswa Teratas';});
     document.querySelectorAll('#page-overview .card-title').forEach(e=>{if(e.textContent.trim()==='Perlu Perhatian')e.closest('.card')?.remove();});
