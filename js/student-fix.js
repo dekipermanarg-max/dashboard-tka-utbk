@@ -1,19 +1,35 @@
 /* Student page revisions: no per-student average; UTBK uses subtests instead of subject sections. */
 (function(){
+  function norm(text){
+    return String(text || '').replace(/\s+/g,' ').trim().toLowerCase();
+  }
+
   function removeCardByTitle(title){
-    const wanted=String(title).trim().toLowerCase();
+    const wanted=norm(title);
     document.querySelectorAll('#studentScores .card, #studentScores section, #studentScores .student-section').forEach(card=>{
       const titleEl=card.querySelector('.card-title, h2, h3, .section-title');
-      if(titleEl && titleEl.textContent.trim().toLowerCase()===wanted){
+      if(titleEl && norm(titleEl.textContent).replace(/^\S+\s+/,'')===wanted){
         card.remove();
+        return;
       }
+      if(titleEl && norm(titleEl.textContent).includes(wanted)) card.remove();
     });
   }
 
   function renameCardTitle(from,to){
-    const wanted=String(from).trim().toLowerCase();
+    const wanted=norm(from);
     document.querySelectorAll('#studentScores .card-title, #studentScores h2, #studentScores h3, #studentScores .section-title').forEach(el=>{
-      if(el.textContent.trim().toLowerCase()===wanted) el.textContent=to;
+      const text=norm(el.textContent);
+      if(text===wanted || text.includes(wanted)) el.textContent=to;
+    });
+  }
+
+  function removeAverageKpi(){
+    const profile=document.getElementById('studentProfile');
+    if(!profile) return;
+    profile.querySelectorAll('.kpi-card').forEach(card=>{
+      const label=card.querySelector('.kpi-label');
+      if(label && norm(label.textContent).startsWith('rata-rata')) card.remove();
     });
   }
 
@@ -23,13 +39,9 @@
     if(!profile) return;
 
     /* Per-student average is not needed. */
-    profile.querySelectorAll('.kpi-card').forEach(card=>{
-      const label=card.querySelector('.kpi-label');
-      if(label && label.textContent.trim().toLowerCase()==='rata-rata') card.remove();
-    });
+    removeAverageKpi();
 
-    /* For UTBK, remove the generic Mapel Wajib section and call the
-       remaining Mapel Pilihan section simply Subtes. */
+    /* The Siswa page should show UTBK subtests only. */
     if(scores){
       removeCardByTitle('Mapel Wajib');
       renameCardTitle('Mapel Pilihan','Subtes');
@@ -51,7 +63,7 @@
     profile.querySelectorAll('.kpi-card').forEach(card=>{
       const label=card.querySelector('.kpi-label');
       if(!label) return;
-      const text=label.textContent.trim().toLowerCase();
+      const text=norm(label.textContent);
       if(text==='tertinggi' || text.startsWith('tertinggi')){
         label.textContent='Tertinggi';
         const note=card.querySelector('.kpi-note');
@@ -71,7 +83,8 @@
       const wrapped=function(){
         const result=original.apply(this,arguments);
         setTimeout(applyStudentSummary,0);
-        setTimeout(applyStudentSummary,150);
+        setTimeout(applyStudentSummary,100);
+        setTimeout(applyStudentSummary,400);
         return result;
       };
       wrapped.__studentFix=true;
@@ -82,8 +95,24 @@
     setTimeout(applyStudentSummary,500);
   }
 
-  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',()=>setTimeout(install,100));
-  else setTimeout(install,100);
+  /* Keep the revision applied even when the core dashboard redraws the Siswa page. */
+  let observerTimer=null;
+  const observer=new MutationObserver(function(){
+    if(observerTimer) return;
+    observerTimer=setTimeout(function(){
+      observerTimer=null;
+      applyStudentSummary();
+    },50);
+  });
+
+  function startObserver(){
+    const target=document.getElementById('studentScores') || document.body;
+    observer.observe(target,{childList:true,subtree:true});
+    install();
+  }
+
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',()=>setTimeout(startObserver,100));
+  else setTimeout(startObserver,100);
 
   window.applyStudentSummaryFix=applyStudentSummary;
 })();
