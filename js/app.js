@@ -25,10 +25,13 @@
                 await loadDashboardData();
 
                 /* IMPORTANT: UTBK snapshot must be loaded AFTER the main
-                   dashboard API has populated dashboardData. Loading it
-                   before the API response caused its injected data to be
-                   overwritten by loadDashboardData(). */
-                load('js/utbk-data.js?v=20260828c', function(){
+                   dashboard API has populated dashboardData. The UTBK data
+                   script checks window.dashboardData, while the core keeps
+                   dashboardData as a global lexical variable. Mirror the
+                   loaded object onto window before loading the snapshot. */
+                window.dashboardData = dashboardData;
+
+                load('js/utbk-data.js?v=20260828d', function(){
                   try {
                     if (typeof window.restoreDashboardUI === 'function') window.restoreDashboardUI();
                     if (typeof window.applyStudentSummaryFix === 'function') window.applyStudentSummaryFix();
