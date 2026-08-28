@@ -1,42 +1,71 @@
 /* TKA detail score category + legend fix */
 (function () {
+    var originalRenderDetailTO = null;
+
+    function categoryClass(value, testId) {
+        value = Number(value);
+        if (!Number.isFinite(value)) return "score-normal";
+
+        var scale = typeof window.getTKAScoreScale === "function"
+            ? window.getTKAScoreScale(testId)
+            : "200-800";
+
+        if (scale === "0-100") {
+            if (value < 50) return "score-low";
+            if (value < 60) return "score-medium";
+            return "score-high";
+        }
+
+        // TKA 200-800 scale:
+        // 200-424 Kurang | 425-599 Memadai | 600-724 Baik | 725+ Istimewa
+        if (value < 425) return "score-low";
+        if (value < 600) return "score-medium";
+        if (value < 725) return "score-good";
+        return "score-excellent";
+    }
+
+    function normalizeTableScores(testId) {
+        var table = document.getElementById("detailTable");
+        if (!table) return;
+
+        table.querySelectorAll("tbody td").forEach(function (cell) {
+            var value = Number(String(cell.textContent || "").trim());
+            if (!Number.isFinite(value)) return;
+
+            cell.classList.remove(
+                "score-low",
+                "score-medium",
+                "score-good",
+                "score-excellent",
+                "score-high",
+                "score-normal"
+            );
+            cell.classList.add(categoryClass(value, testId));
+        });
+    }
+
     function install() {
         if (typeof window.getTKAScoreClass === "function") {
             window.getTKAScoreClass = function (score, testOrId) {
-                var value = Number(score);
-                if (!Number.isFinite(value)) return "score-normal";
-
-                var scale = typeof window.getTKAScoreScale === "function"
-                    ? window.getTKAScoreScale(testOrId)
-                    : "200-800";
-
-                if (scale === "0-100") {
-                    if (value < 50) return "score-low";
-                    if (value < 60) return "score-medium";
-                    return "score-high";
-                }
-
-                // TKA 200-800 scale:
-                // 200-424 Kurang | 425-599 Memadai | 600-724 Baik | 725+ Istimewa
-                if (value < 425) return "score-low";
-                if (value < 600) return "score-medium";
-                if (value < 725) return "score-good";
-                return "score-excellent";
+                return categoryClass(score, testOrId);
             };
         }
 
         if (typeof window.renderDetailTO === "function" && !window.__tkaDetailCategoryWrapped) {
-            var originalRenderDetailTO = window.renderDetailTO;
+            originalRenderDetailTO = window.renderDetailTO;
 
             window.renderDetailTO = function (testId) {
                 originalRenderDetailTO(testId);
+                normalizeTableScores(testId);
                 addLegend(testId);
             };
 
             window.__tkaDetailCategoryWrapped = true;
         }
 
-        addLegend(window.currentDetailTestId || "");
+        var current = window.currentDetailTestId || "";
+        normalizeTableScores(current);
+        addLegend(current);
     }
 
     function addLegend(testId) {
@@ -46,8 +75,8 @@
         var old = document.getElementById("tkaDetailScoreLegend");
         if (old) old.remove();
 
-        var title = document.getElementById("detailTestTitle");
-        if (!title) return;
+        var container = table.closest(".detail-table-card") || table.parentElement.parentElement;
+        if (!container) return;
 
         var legend = document.createElement("div");
         legend.id = "tkaDetailScoreLegend";
@@ -59,7 +88,7 @@
             '<span class="legend-item score-good"><i></i> Baik <small>600–724</small></span>' +
             '<span class="legend-item score-excellent"><i></i> Istimewa <small>≥725</small></span>';
 
-        table.parentElement.parentElement.appendChild(legend);
+        container.appendChild(legend);
     }
 
     function injectStyle() {
@@ -76,10 +105,10 @@
                 text-align: center;
                 border-radius: 4px;
             }
-            #detailTable td.score-low { color:#c2410c; background:#ffedd5; }
-            #detailTable td.score-medium { color:#1d4ed8; background:#dbeafe; }
-            #detailTable td.score-good { color:#047857; background:#d1fae5; }
-            #detailTable td.score-excellent { color:#166534; background:#dcfce7; }
+            #detailTable td.score-low { color:#c2410c !important; background:#ffedd5 !important; }
+            #detailTable td.score-medium { color:#1d4ed8 !important; background:#dbeafe !important; }
+            #detailTable td.score-good { color:#047857 !important; background:#d1fae5 !important; }
+            #detailTable td.score-excellent { color:#166534 !important; background:#dcfce7 !important; }
             .tka-detail-score-legend {
                 display:flex;
                 flex-wrap:wrap;
