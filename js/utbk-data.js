@@ -29,7 +29,7 @@
   const norm=s=>String(s||'').trim().toLowerCase().replace(/\s+/g,' ');
   let activeTestId=TEST_ID;
   function inject(){
-    if(!window.dashboardData) return false;
+    if(typeof dashboardData === 'undefined' || !dashboardData) return false;
     const existing=getTests().find(t=>String(getTestName(t)).toUpperCase()===TEST_NAME.toUpperCase());
     if(!existing){
       dashboardData.tests.push({test_id:TEST_ID,jenis:'UTBK',nama_to:TEST_NAME});
@@ -43,11 +43,9 @@
     } else {
       activeTestId=getTestId(existing);
     }
-    const selectedStudentTest=currentStudentTestId;
-    if(!selectedStudentTest || !getTests().some(t=>getTestId(t)===selectedStudentTest)) currentStudentTestId=getTKATests()[0]?.test_id||activeTestId;
     const us=getUTBKTests();
     if(document.getElementById('utbkTestSelector')) populateTestSelector('utbkTestSelector',us,activeTestId);
-    renderUTBK(activeTestId);
+    if(typeof renderUTBK==='function') renderUTBK(activeTestId);
     if(typeof populateStudentSelector==='function') populateStudentSelector();
     if(typeof renderStudentDetail==='function') renderStudentDetail();
     return true;
