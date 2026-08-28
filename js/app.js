@@ -8,14 +8,12 @@
     document.head.appendChild(s);
   }
 
-  /* Load the real dashboard core directly. The old wrapper caused the
-     revision scripts to run before the core functions existed. */
   load('js/app-original.js?v=20260825h', function(){
     load('js/revisions.js?v=20260825h', function(){
       load('js/final-revisions.js?v=20260825h', function(){
         load('js/restore-revisions.js?v=20260825a', function(){
           load('js/student-fix.js?v=20260828b', function(){
-            load('js/calendar-fix.js?v=20260828a', function(){
+            load('js/calendar-fix.js?v=20260828b', function(){
               try { if (typeof initNavigation === 'function') initNavigation(); } catch (e) { console.error('initNavigation:', e); }
               try { if (typeof initSelectors === 'function') initSelectors(); } catch (e) { console.error('initSelectors:', e); }
               try { if (typeof initDetailSearch === 'function') initDetailSearch(); } catch (e) { console.error('initDetailSearch:', e); }
@@ -25,29 +23,23 @@
                   if (typeof loadDashboardData !== 'function') throw new Error('loadDashboardData tidak ditemukan');
                   await loadDashboardData();
                   window.dashboardData = dashboardData;
-
                   load('js/utbk-data.js?v=20260828e', function(){
-                    try {
-                      load('js/utbk-kpi-detail.js?v=20260828a', function(){
+                    load('js/utbk-kpi-detail.js?v=20260828a', function(){
+                      load('js/test-name-fix.js?v=20260828a', function(){
                         try {
-                          load('js/test-name-fix.js?v=20260828a', function(){
-                            try {
-                              if (typeof window.restoreDashboardUI === 'function') window.restoreDashboardUI();
-                              if (typeof window.applyStudentSummaryFix === 'function') window.applyStudentSummaryFix();
-                              if (typeof populateAllSelectors === 'function') populateAllSelectors();
-                              if (typeof rankingSelector === 'function') rankingSelector();
-                              if (typeof renderAll === 'function') renderAll();
-                              if (typeof window.refreshCalendar === 'function') window.refreshCalendar();
-                              load('js/utbk-menu-sync.js?v=20260828a', function(){
-                                try { if (typeof window.refreshAllMenusWithUTBK === 'function') window.refreshAllMenusWithUTBK(); } catch (e) { console.error('UTBK menu refresh:', e); }
-                              });
-                            } catch (e) { console.error('Post-name-standardization render:', e); }
+                          if (typeof window.restoreDashboardUI === 'function') window.restoreDashboardUI();
+                          if (typeof window.applyStudentSummaryFix === 'function') window.applyStudentSummaryFix();
+                          if (typeof populateAllSelectors === 'function') populateAllSelectors();
+                          if (typeof rankingSelector === 'function') rankingSelector();
+                          if (typeof renderAll === 'function') renderAll();
+                          if (typeof window.refreshCalendar === 'function') window.refreshCalendar();
+                          load('js/utbk-menu-sync.js?v=20260828a', function(){
+                            try { if (typeof window.refreshAllMenusWithUTBK === 'function') window.refreshAllMenusWithUTBK(); } catch (e) { console.error('UTBK menu refresh:', e); }
                           });
-                        } catch (e) { console.error('Post-UTBK KPI render:', e); }
+                        } catch (e) { console.error('Post-name-standardization render:', e); }
                       });
-                    } catch (e) { console.error('Post-UTBK render:', e); }
+                    });
                   });
-
                 } catch (error) {
                   console.error('Dashboard initialization error:', error);
                   if (typeof showError === 'function') showError('Gagal memuat data dashboard: ' + error.message);
