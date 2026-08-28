@@ -23,23 +23,23 @@
               try {
                 if (typeof loadDashboardData !== 'function') throw new Error('loadDashboardData tidak ditemukan');
                 await loadDashboardData();
-
-                /* IMPORTANT: UTBK snapshot must be loaded AFTER the main
-                   dashboard API has populated dashboardData. The UTBK data
-                   script checks window.dashboardData, while the core keeps
-                   dashboardData as a global lexical variable. Mirror the
-                   loaded object onto window before loading the snapshot. */
                 window.dashboardData = dashboardData;
 
                 load('js/utbk-data.js?v=20260828e', function(){
                   try {
-                    if (typeof window.restoreDashboardUI === 'function') window.restoreDashboardUI();
-                    if (typeof window.applyStudentSummaryFix === 'function') window.applyStudentSummaryFix();
-                    if (typeof populateAllSelectors === 'function') populateAllSelectors();
-                    if (typeof rankingSelector === 'function') rankingSelector();
-                    if (typeof renderAll === 'function') renderAll();
-                    load('js/utbk-menu-sync.js?v=20260828a', function(){
-                      try { if (typeof window.refreshAllMenusWithUTBK === 'function') window.refreshAllMenusWithUTBK(); } catch (e) { console.error('UTBK menu refresh:', e); }
+                    /* Standardize TO names only after all source tests and the
+                       UTBK snapshot exist, so every menu renders the same labels. */
+                    load('js/test-name-fix.js?v=20260828a', function(){
+                      try {
+                        if (typeof window.restoreDashboardUI === 'function') window.restoreDashboardUI();
+                        if (typeof window.applyStudentSummaryFix === 'function') window.applyStudentSummaryFix();
+                        if (typeof populateAllSelectors === 'function') populateAllSelectors();
+                        if (typeof rankingSelector === 'function') rankingSelector();
+                        if (typeof renderAll === 'function') renderAll();
+                        load('js/utbk-menu-sync.js?v=20260828a', function(){
+                          try { if (typeof window.refreshAllMenusWithUTBK === 'function') window.refreshAllMenusWithUTBK(); } catch (e) { console.error('UTBK menu refresh:', e); }
+                        });
+                      } catch (e) { console.error('Post-name-standardization render:', e); }
                     });
                   } catch (e) { console.error('Post-UTBK render:', e); }
                 });
