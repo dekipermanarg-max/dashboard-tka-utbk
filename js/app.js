@@ -15,23 +15,32 @@
       load('js/final-revisions.js?v=20260825h', function(){
         load('js/restore-revisions.js?v=20260825a', function(){
           load('js/student-fix.js?v=20260826a', function(){
-            load('js/utbk-data.js?v=20260828b', function(){
-              try { if (typeof initNavigation === 'function') initNavigation(); } catch (e) { console.error('initNavigation:', e); }
-              try { if (typeof initSelectors === 'function') initSelectors(); } catch (e) { console.error('initSelectors:', e); }
-              try { if (typeof initDetailSearch === 'function') initDetailSearch(); } catch (e) { console.error('initDetailSearch:', e); }
-              try { if (typeof initPrint === 'function') initPrint(); } catch (e) { console.error('initPrint:', e); }
-              setTimeout(async function(){
-                try {
-                  if (typeof loadDashboardData !== 'function') throw new Error('loadDashboardData tidak ditemukan');
-                  await loadDashboardData();
-                  if (typeof window.restoreDashboardUI === 'function') window.restoreDashboardUI();
-                  if (typeof window.applyStudentSummaryFix === 'function') window.applyStudentSummaryFix();
-                } catch (error) {
-                  console.error('Dashboard initialization error:', error);
-                  if (typeof showError === 'function') showError('Gagal memuat data dashboard: ' + error.message);
-                }
-              }, 50);
-            });
+            try { if (typeof initNavigation === 'function') initNavigation(); } catch (e) { console.error('initNavigation:', e); }
+            try { if (typeof initSelectors === 'function') initSelectors(); } catch (e) { console.error('initSelectors:', e); }
+            try { if (typeof initDetailSearch === 'function') initDetailSearch(); } catch (e) { console.error('initDetailSearch:', e); }
+            try { if (typeof initPrint === 'function') initPrint(); } catch (e) { console.error('initPrint:', e); }
+            setTimeout(async function(){
+              try {
+                if (typeof loadDashboardData !== 'function') throw new Error('loadDashboardData tidak ditemukan');
+                await loadDashboardData();
+
+                /* IMPORTANT: UTBK snapshot must be loaded AFTER the main
+                   dashboard API has populated dashboardData. Loading it
+                   before the API response caused its injected data to be
+                   overwritten by loadDashboardData(). */
+                load('js/utbk-data.js?v=20260828c', function(){
+                  try {
+                    if (typeof window.restoreDashboardUI === 'function') window.restoreDashboardUI();
+                    if (typeof window.applyStudentSummaryFix === 'function') window.applyStudentSummaryFix();
+                    if (typeof renderAll === 'function') renderAll();
+                  } catch (e) { console.error('Post-UTBK render:', e); }
+                });
+
+              } catch (error) {
+                console.error('Dashboard initialization error:', error);
+                if (typeof showError === 'function') showError('Gagal memuat data dashboard: ' + error.message);
+              }
+            }, 50);
           });
         });
       });
