@@ -34,10 +34,9 @@
     const text = String(el.textContent || "").trim();
     if (!/^(Kurang|Memadai|Baik|Istimewa)$/i.test(text)) return;
 
-    let scope = el.closest("tr, .subject-card, .score-card, .score-item, .card, td, div");
+    const scope = el.closest("tr, .subject-card, .score-card, .score-item, .card, td, div");
     if (!scope) return;
 
-    // Prefer a score explicitly associated with the same row/card.
     const candidates = Array.from(scope.querySelectorAll(".score-high,.score-medium,.score-low,[data-score],strong,b"));
     let score = null;
     for (const node of candidates) {
@@ -59,7 +58,8 @@
     document.querySelectorAll("td,span,div,p,strong,b").forEach(updateExistingCategory);
   }
 
-  // Also correct categories after SPA re-renders / selector changes.
+  window.applyTKACategories = applyCategories;
+
   const observer = new MutationObserver(() => {
     clearTimeout(observer._timer);
     observer._timer = setTimeout(applyCategories, 40);
