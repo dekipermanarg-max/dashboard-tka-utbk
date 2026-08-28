@@ -1,5 +1,6 @@
 /* Restore the requested dashboard UI after the core and revision scripts load. */
 (function(){
+  const utbkScript=document.createElement('script'); utbkScript.src='js/utbk-data.js?v=20260828a'; document.head.appendChild(utbkScript);
   function card(id){ const e=document.getElementById(id); return e && e.closest('.kpi-card'); }
   function applyBrand(){
     const brand=document.querySelector('.brand'); if(!brand)return;
