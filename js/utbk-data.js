@@ -27,10 +27,11 @@
   ];
   const TEST_ID='UTBK_REG_001', TEST_NAME='UTBK SMA Reguler Episode 1';
   const norm=s=>String(s||'').trim().toLowerCase().replace(/\s+/g,' ');
+  let activeTestId=TEST_ID;
   function inject(){
     if(!window.dashboardData) return false;
-    const has=getTests().some(t=>String(getTestName(t)).toUpperCase()===TEST_NAME.toUpperCase());
-    if(!has){
+    const existing=getTests().find(t=>String(getTestName(t)).toUpperCase()===TEST_NAME.toUpperCase());
+    if(!existing){
       dashboardData.tests.push({test_id:TEST_ID,jenis:'UTBK',nama_to:TEST_NAME});
       SUBS.forEach(([id,name])=>dashboardData.subtests.push({subtest_id:id,subtes:name,jenis:'UTBK'}));
       DATA.forEach(([nama,sourceId,sekolah,status,scores])=>{
@@ -38,18 +39,22 @@
         if(!student){student={student_id:sourceId,nama,sekolah,cabang:'Padang - Tarandam'};dashboardData.students.push(student)}
         scores.forEach((nilai,i)=>dashboardData.results.push({test_id:TEST_ID,student_id:student.student_id,subtest_id:SUBS[i][0],nilai,status_pengerjaan:status}));
       });
+      activeTestId=TEST_ID;
+    } else {
+      activeTestId=getTestId(existing);
     }
-    currentStudentTestId = currentStudentTestId && isUTBK(getTests().find(t=>getTestId(t)===currentStudentTestId)) ? currentStudentTestId : TEST_ID;
+    const selectedStudentTest=currentStudentTestId;
+    if(!selectedStudentTest || !getTests().some(t=>getTestId(t)===selectedStudentTest)) currentStudentTestId=getTKATests()[0]?.test_id||activeTestId;
     const us=getUTBKTests();
-    if(document.getElementById('utbkTestSelector')) populateTestSelector('utbkTestSelector',us,TEST_ID);
-    renderUTBK(TEST_ID);
+    if(document.getElementById('utbkTestSelector')) populateTestSelector('utbkTestSelector',us,activeTestId);
+    renderUTBK(activeTestId);
     if(typeof populateStudentSelector==='function') populateStudentSelector();
     if(typeof renderStudentDetail==='function') renderStudentDetail();
     return true;
   }
   function render(){
     const page=document.getElementById('page-utbk'); if(!page)return;
-    const testId=(document.getElementById('utbkTestSelector')?.value)||TEST_ID;
+    const testId=(document.getElementById('utbkTestSelector')?.value)||activeTestId;
     const results=getResults(testId), students=getStudentsForDetail(testId), vals=results.map(getScore).filter(v=>v!=null);
     const avg=vals.length?vals.reduce((a,b)=>a+b,0)/vals.length:0;
     const by={}; results.forEach(r=>{(by[r.subtest_id]??=[]).push(getScore(r))});
