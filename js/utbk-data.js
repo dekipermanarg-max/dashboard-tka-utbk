@@ -57,8 +57,6 @@
     return true;
   }
 
-  /* Build detail rows directly from UTBK results. Do not depend on
-     getParticipants(), whose return shape varies between dashboard revisions. */
   function getDetailRows(testId){
     const results=getResults(testId)||[];
     const byStudent={};
@@ -73,12 +71,7 @@
     });
     return Object.keys(byStudent).map(sid=>{
       const student=dashboardData.students.find(s=>String(s.student_id)===sid)||{};
-      return {
-        ...student,
-        student_id:sid,
-        nama:student.nama||getStudentName(sid)||'—',
-        ...byStudent[sid]
-      };
+      return {...student,student_id:sid,nama:student.nama||getStudentName(sid)||'—',...byStudent[sid]};
     });
   }
 
@@ -90,13 +83,19 @@
     const vals=results.map(getScore).filter(v=>v!=null);
     const avg=vals.length?vals.reduce((a,b)=>a+b,0)/vals.length:0;
     const by={}; results.forEach(r=>{(by[r.subtest_id]??=[]).push(getScore(r))});
+    const highest=vals.length?Math.max(...vals):null;
+    const lowest=vals.length?Math.min(...vals):null;
+    const highestResult=highest==null?null:results.find(r=>getScore(r)===highest);
+    const lowestResult=lowest==null?null:results.find(r=>getScore(r)===lowest);
+    const highestSubtest=highestResult?(SUBS.find(([id])=>id===highestResult.subtest_id)?.[1]||'—'):'—';
+    const lowestSubtest=lowestResult?(SUBS.find(([id])=>id===lowestResult.subtest_id)?.[1]||'—'):'—';
     const cards=SUBS.map(([id,name])=>{const a=(by[id]||[]).filter(v=>v!=null),av=a.length?a.reduce((x,y)=>x+y,0)/a.length:0;return `<div class="subject-card"><div class="subject-name">${escapeHTML(name)}</div><div class="subject-score ${getTKASubjectScoreClass(av,testId)}">${a.length?av.toFixed(1):'—'}</div><div class="subject-meta">${a.length} peserta • Max ${a.length?Math.max(...a):'—'} • Min ${a.length?Math.min(...a):'—'}</div></div>`}).join('');
     const rank={};students.forEach(s=>{const a=getStudentResults(s.student_id,testId).map(getScore).filter(v=>v!=null);if(a.length)rank[s.student_id]={...s,average:a.reduce((x,y)=>x+y,0)/a.length}});
     const rows=Object.values(rank).sort((a,b)=>b.average-a.average).map((s,i)=>`<tr><td>${i+1}</td><td><strong>${escapeHTML(s.nama)}</strong></td><td>${escapeHTML(s.sekolah||'—')}</td><td><strong>${s.average.toFixed(1)}</strong></td><td><span class="status ${getStudentStatus(s.average).className}">${getStudentStatus(s.average).label}</span></td></tr>`).join('');
     const detailRows=getDetailRows(testId).sort((a,b)=>String(a.nama||'').localeCompare(String(b.nama||'')));
     const detailHead='<tr><th>No.</th><th>Nama Siswa</th><th>Durasi Pengerjaan</th><th># Keluar Tab</th><th>Durasi Keluar Tab</th>'+SUBS.map(([,name])=>`<th>${escapeHTML(name)}</th>`).join('')+'</tr>';
     const detailBody=detailRows.map((s,i)=>{const scoreMap={};(s.results||[]).forEach(r=>scoreMap[r.subtest_id]=getScore(r));return `<tr><td>${i+1}</td><td><strong>${escapeHTML(s.nama)}</strong></td><td>${fmtDuration(s.durasi)}</td><td>${Number(s.jumlahKeluarTab)||0}</td><td>${fmtDuration(s.durasiKeluarTab)}</td>${SUBS.map(([id])=>`<td class="${scoreMap[id]!=null?getScoreCellClass(scoreMap[id],testId):''}">${scoreMap[id]!=null?scoreMap[id]:'—'}</td>`).join('')}</tr>`}).join('');
-    page.innerHTML=`<div class="page-header"><div><h1>🚀 UTBK</h1><p>Analisis performa siswa pada TO UTBK</p></div><select id="utbkTestSelector"></select></div><div class="kpi-grid"><div class="card kpi-card"><div class="kpi-label">Peserta</div><div class="kpi-value">${new Set(results.map(r=>r.student_id)).size}</div><div class="kpi-note">Siswa dengan nilai</div></div><div class="card kpi-card"><div class="kpi-label">Rata-rata Skor</div><div class="kpi-value">${avg.toFixed(1)}</div><div class="kpi-note">Seluruh subtes</div></div><div class="card kpi-card"><div class="kpi-label">Skor Tertinggi</div><div class="kpi-value">${vals.length?Math.max(...vals):'—'}</div><div class="kpi-note">Nilai tertinggi</div></div><div class="card kpi-card"><div class="kpi-label">Skor Terendah</div><div class="kpi-value">${vals.length?Math.min(...vals):'—'}</div><div class="kpi-note">Nilai terendah</div></div></div><div class="card"><div class="card-title">📊 Analisis Performa UTBK berdasarkan subtes</div><div class="subject-grid">${cards}</div></div><div class="card"><div class="card-title">🏆 Ranking UTBK</div><div class="table-wrapper"><table><thead><tr><th>#</th><th>Siswa</th><th>Sekolah</th><th>Rata-rata</th><th>Status</th></tr></thead><tbody>${rows}</tbody></table></div></div><div class="card"><div class="card-title">📋 Detail Peserta UTBK</div><div class="card-subtitle" style="margin:-10px 0 16px;color:#64748b;font-size:12px;">Durasi ditampilkan dalam format jam:menit:detik. Data mengikuti rekap TO UTBK.</div><div class="table-wrapper" style="overflow-x:auto;"><table class="utbk-detail-table"><thead>${detailHead}</thead><tbody>${detailBody}</tbody></table></div></div>`;
+    page.innerHTML=`<div class="page-header"><div><h1>🚀 UTBK</h1><p>Analisis performa siswa pada TO UTBK</p></div><select id="utbkTestSelector"></select></div><div class="kpi-grid"><div class="card kpi-card"><div class="kpi-label">Peserta</div><div class="kpi-value">${new Set(results.map(r=>r.student_id)).size}</div><div class="kpi-note">Siswa dengan nilai</div></div><div class="card kpi-card"><div class="kpi-label">Rata-rata Skor</div><div class="kpi-value">${avg.toFixed(1)}</div><div class="kpi-note">Seluruh subtes</div></div><div class="card kpi-card"><div class="kpi-label">Skor Tertinggi</div><div class="kpi-value">${highest??'—'}</div><div class="kpi-note">${escapeHTML(highestSubtest)}</div></div><div class="card kpi-card"><div class="kpi-label">Skor Terendah</div><div class="kpi-value">${lowest??'—'}</div><div class="kpi-note">${escapeHTML(lowestSubtest)}</div></div></div><div class="card"><div class="card-title">📊 Analisis Performa UTBK berdasarkan subtes</div><div class="subject-grid">${cards}</div></div><div class="card"><div class="card-title">🏆 Ranking UTBK</div><div class="table-wrapper"><table><thead><tr><th>#</th><th>Siswa</th><th>Sekolah</th><th>Rata-rata</th><th>Status</th></tr></thead><tbody>${rows}</tbody></table></div></div><div class="card"><div class="card-title">📋 Detail Peserta UTBK</div><div class="card-subtitle" style="margin:-10px 0 16px;color:#64748b;font-size:12px;">Durasi ditampilkan dalam format jam:menit:detik. Data mengikuti rekap TO UTBK.</div><div class="table-wrapper" style="overflow-x:auto;"><table class="utbk-detail-table"><thead>${detailHead}</thead><tbody>${detailBody}</tbody></table></div></div>`;
     populateTestSelector('utbkTestSelector',getUTBKTests(),testId);
     document.getElementById('utbkTestSelector').onchange=e=>renderUTBK(e.target.value);
   }
