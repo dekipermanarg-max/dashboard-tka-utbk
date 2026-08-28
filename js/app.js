@@ -27,19 +27,23 @@
 
                 load('js/utbk-data.js?v=20260828e', function(){
                   try {
-                    /* Standardize TO names only after all source tests and the
-                       UTBK snapshot exist, so every menu renders the same labels. */
-                    load('js/test-name-fix.js?v=20260828a', function(){
+                    load('js/utbk-kpi-detail.js?v=20260828a', function(){
                       try {
-                        if (typeof window.restoreDashboardUI === 'function') window.restoreDashboardUI();
-                        if (typeof window.applyStudentSummaryFix === 'function') window.applyStudentSummaryFix();
-                        if (typeof populateAllSelectors === 'function') populateAllSelectors();
-                        if (typeof rankingSelector === 'function') rankingSelector();
-                        if (typeof renderAll === 'function') renderAll();
-                        load('js/utbk-menu-sync.js?v=20260828a', function(){
-                          try { if (typeof window.refreshAllMenusWithUTBK === 'function') window.refreshAllMenusWithUTBK(); } catch (e) { console.error('UTBK menu refresh:', e); }
+                        /* Standardize TO names only after all source tests and the
+                           UTBK snapshot exist, so every menu renders the same labels. */
+                        load('js/test-name-fix.js?v=20260828a', function(){
+                          try {
+                            if (typeof window.restoreDashboardUI === 'function') window.restoreDashboardUI();
+                            if (typeof window.applyStudentSummaryFix === 'function') window.applyStudentSummaryFix();
+                            if (typeof populateAllSelectors === 'function') populateAllSelectors();
+                            if (typeof rankingSelector === 'function') rankingSelector();
+                            if (typeof renderAll === 'function') renderAll();
+                            load('js/utbk-menu-sync.js?v=20260828a', function(){
+                              try { if (typeof window.refreshAllMenusWithUTBK === 'function') window.refreshAllMenusWithUTBK(); } catch (e) { console.error('UTBK menu refresh:', e); }
+                            });
+                          } catch (e) { console.error('Post-name-standardization render:', e); }
                         });
-                      } catch (e) { console.error('Post-name-standardization render:', e); }
+                      } catch (e) { console.error('Post-UTBK KPI render:', e); }
                     });
                   } catch (e) { console.error('Post-UTBK render:', e); }
                 });
