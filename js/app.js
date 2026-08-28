@@ -31,11 +31,16 @@
                    loaded object onto window before loading the snapshot. */
                 window.dashboardData = dashboardData;
 
-                load('js/utbk-data.js?v=20260828d', function(){
+                load('js/utbk-data.js?v=20260828e', function(){
                   try {
                     if (typeof window.restoreDashboardUI === 'function') window.restoreDashboardUI();
                     if (typeof window.applyStudentSummaryFix === 'function') window.applyStudentSummaryFix();
+                    if (typeof populateAllSelectors === 'function') populateAllSelectors();
+                    if (typeof rankingSelector === 'function') rankingSelector();
                     if (typeof renderAll === 'function') renderAll();
+                    load('js/utbk-menu-sync.js?v=20260828a', function(){
+                      try { if (typeof window.refreshAllMenusWithUTBK === 'function') window.refreshAllMenusWithUTBK(); } catch (e) { console.error('UTBK menu refresh:', e); }
+                    });
                   } catch (e) { console.error('Post-UTBK render:', e); }
                 });
 
