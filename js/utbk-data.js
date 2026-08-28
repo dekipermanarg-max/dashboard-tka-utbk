@@ -32,7 +32,7 @@
   ];
   const TEST_ID='UTBK_REG_001', TEST_NAME='UTBK SMA Reguler Episode 1';
   const norm=s=>String(s||'').trim().toLowerCase().replace(/\s+/g,' ');
-  const fmtDuration=sec=>{sec=Number(sec)||0;const h=Math.floor(sec/3600),m=Math.floor((sec%3600)/60),s=sec%60;return [h,m,s].map((v,i)=>i===0?String(v).padStart(2,'0'):String(v).padStart(2,'0')).join(':')};
+  const fmtDuration=sec=>{sec=Number(sec)||0;const h=Math.floor(sec/3600),m=Math.floor((sec%3600)/60),s=sec%60;return [h,m,s].map(v=>String(v).padStart(2,'0')).join(':')};
   let activeTestId=TEST_ID;
 
   function inject(){
@@ -49,7 +49,6 @@
       activeTestId=TEST_ID;
     } else {
       activeTestId=getTestId(existing);
-      /* Keep detail metadata available even when the test was already injected. */
       const map={};
       DATA.forEach(([nama,sourceId,sekolah,status,durasiPengerjaan,keluarTab,durasiKeluarTab])=>map[norm(nama)]={durasiPengerjaan,keluarTab,durasiKeluarTab,status});
       getResults(TEST_ID).forEach(r=>{
@@ -73,7 +72,12 @@
       if(!byStudent[sid]) byStudent[sid]={results:[],durasi:r.durasi_pengerjaan,jumlahKeluarTab:r.jumlah_keluar_tab,durasiKeluarTab:r.durasi_keluar_tab,status:r.status_pengerjaan};
       byStudent[sid].results.push(r);
     });
-    return getParticipants(testId).map(s=>{const d=byStudent[s.student_id]||{};return {...s,...d}});
+    // getParticipants() returns student IDs, so resolve each ID to the full student object.
+    return getParticipants(testId).map(studentId=>{
+      const student=dashboardData.students.find(s=>String(s.student_id)===String(studentId)) || {student_id:studentId,nama:getStudentName(studentId)};
+      const d=byStudent[studentId]||{};
+      return {...student,...d};
+    });
   }
 
   function render(){
