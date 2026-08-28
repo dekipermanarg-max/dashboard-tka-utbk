@@ -57,17 +57,28 @@
     return true;
   }
 
+  /* Build detail rows directly from UTBK results. Do not depend on
+     getParticipants(), whose return shape varies between dashboard revisions. */
   function getDetailRows(testId){
+    const results=getResults(testId)||[];
     const byStudent={};
-    getResults(testId).forEach(r=>{
-      const sid=r.student_id;
+    results.forEach(r=>{
+      const sid=String(r.student_id);
       if(!byStudent[sid]) byStudent[sid]={results:[],durasi:r.durasi_pengerjaan,jumlahKeluarTab:r.jumlah_keluar_tab,durasiKeluarTab:r.durasi_keluar_tab,status:r.status_pengerjaan};
-      byStudent[sid].results.push(r);
+      const d=byStudent[sid];
+      d.results.push(r);
+      if(d.durasi==null && r.durasi_pengerjaan!=null) d.durasi=r.durasi_pengerjaan;
+      if(d.jumlahKeluarTab==null && r.jumlah_keluar_tab!=null) d.jumlahKeluarTab=r.jumlah_keluar_tab;
+      if(d.durasiKeluarTab==null && r.durasi_keluar_tab!=null) d.durasiKeluarTab=r.durasi_keluar_tab;
     });
-    return getParticipants(testId).map(studentId=>{
-      const student=dashboardData.students.find(s=>String(s.student_id)===String(studentId)) || {student_id:studentId,nama:getStudentName(studentId)};
-      const d=byStudent[studentId]||{};
-      return {...student,...d};
+    return Object.keys(byStudent).map(sid=>{
+      const student=dashboardData.students.find(s=>String(s.student_id)===sid)||{};
+      return {
+        ...student,
+        student_id:sid,
+        nama:student.nama||getStudentName(sid)||'—',
+        ...byStudent[sid]
+      };
     });
   }
 
