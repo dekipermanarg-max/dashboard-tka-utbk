@@ -1,4 +1,4 @@
-/* Calendar revisions: chronological order, standardized TO names, and automatic status marks. */
+/* Calendar revisions: chronological order, standardized TO names, automatic status marks, and restored navigation. */
 (function(){
   const TKA = [
     ['2026-07-14','2026-07-23','Juli','TO TKA SMA Premium #1','14–23 Jul 2026'],
@@ -54,12 +54,46 @@
     rows=rows.slice().sort((a,b)=>a[0].localeCompare(b[0])||a[1].localeCompare(b[1]));
     return `<div class="card calendar-card"><div class="card-title">${esc(title)}</div><div class="calendar-grid"><b>Bulan</b><b>TO</b><b>Tanggal</b>${rows.map(x=>{const s=status(x[0],x[1]);return `<div>${esc(x[2])}</div><div class="calendar-to ${s.cls}">${s.mark?`<span class="calendar-mark" title="${s.label}">${s.mark}</span>`:''}${esc(x[3])}</div><div>${esc(x[4])}</div>`}).join('')}</div></div>`;
   }
+
+  function ensureNavigation(){
+    const menu=document.querySelector('.menu');
+    if(menu && !menu.querySelector('button[data-page="calendar"]')){
+      const btn=document.createElement('button');
+      btn.type='button';
+      btn.setAttribute('data-page','calendar');
+      btn.innerHTML='<span class="calendar-menu-icon">🗓️</span><span>Kalender TO</span>';
+      menu.appendChild(btn);
+    }
+
+    const main=document.querySelector('.main-content');
+    if(main && !document.getElementById('page-calendar')){
+      const page=document.createElement('section');
+      page.id='page-calendar';
+      page.className='page';
+      page.style.display='none';
+      main.appendChild(page);
+    }
+  }
+
   function render(){
+    ensureNavigation();
     const page=document.getElementById('page-calendar'); if(!page)return;
     page.dataset.calendarFix='v3';
     page.innerHTML=`<div class="page-header"><div><h1>🗓️ Kalender TO</h1><p>Jadwal TO TKA & TO UTBK 2026/2027</p></div></div>${table('TO TKA',TKA)}${table('TO UTBK',UTBK)}<div class="calendar-note"><span class="legend-done">✓ Selesai</span> &nbsp;•&nbsp; <span class="legend-ongoing">● Sedang berlangsung</span></div>`;
   }
+
+  function showCalendar(){
+    ensureNavigation();
+    document.querySelectorAll('.page').forEach(p=>p.style.display='none');
+    const page=document.getElementById('page-calendar');
+    if(page) page.style.display='block';
+    document.querySelectorAll('.menu button').forEach(b=>b.classList.remove('active'));
+    document.querySelector('.menu button[data-page="calendar"]')?.classList.add('active');
+    render();
+  }
+
   function apply(){
+    ensureNavigation();
     const page=document.getElementById('page-calendar');
     if(!page)return;
     render();
@@ -73,23 +107,40 @@
         .calendar-grid>b{background:#eef3f9;font-weight:700}
         .calendar-to{font-weight:500}.calendar-to.done{font-weight:700}.calendar-mark{display:inline-flex;align-items:center;justify-content:center;margin-right:6px;width:18px;height:18px;border-radius:50%;font-weight:800}.calendar-to.done .calendar-mark{background:#dcfce7;color:#15803d}.calendar-to.ongoing .calendar-mark{color:#ca8a04}.legend-done{font-weight:700;color:#15803d}.legend-ongoing{font-weight:700;color:#ca8a04}
         .calendar-note{margin-top:10px;font-size:12px;color:#64748b}
+        .calendar-menu-icon{margin-right:4px}
       `; document.head.appendChild(st);
     }
   }
   window.refreshCalendar=apply;
 
-  /* The older revisions script can recreate the calendar after this fix.
-     Re-apply when the Calendar menu is clicked, after the navigation code runs. */
   function bind(){
+    ensureNavigation();
     document.addEventListener('click',function(e){
-      const btn=e.target.closest && e.target.closest('.menu button[data-page="calendar"]');
-      if(btn) setTimeout(apply,50);
+      const calendarBtn=e.target.closest && e.target.closest('.menu button[data-page="calendar"]');
+      if(calendarBtn){
+        e.preventDefault();
+        e.stopPropagation();
+        showCalendar();
+        return;
+      }
+      const otherBtn=e.target.closest && e.target.closest('.menu button[data-page]');
+      if(otherBtn) setTimeout(()=>{
+        const page=document.getElementById('page-calendar');
+        if(page && otherBtn.getAttribute('data-page')!=='calendar') page.style.display='none';
+      },20);
     },true);
     setInterval(function(){
+      ensureNavigation();
       const page=document.getElementById('page-calendar');
       if(page && page.style.display!=='none' && page.dataset.calendarFix!=='v3') apply();
     },500);
   }
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(()=>{apply();bind();},150));
-  else setTimeout(()=>{apply();bind();},150);
+
+  function boot(){
+    ensureNavigation();
+    apply();
+    bind();
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(boot,150));
+  else setTimeout(boot,150);
 })();
