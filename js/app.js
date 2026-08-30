@@ -86,8 +86,8 @@
                           load('js/utbk-kpi-detail.js?v=20260828a', function(){
                             load('js/test-name-fix.js?v=20260828a', function(){
                               /* Bumped cache-buster so the latest email-first
-                                 dedupe code cannot be served from stale cache. */
-                              load('js/student-selector-dedupe.js?v=20260830c', function(){
+                                 dedupe + canonical-name code cannot be served from stale cache. */
+                              load('js/student-selector-dedupe.js?v=20260830d', function(){
                                 try {
                                   installStudentSelectorGuard();
                                   if (typeof window.restoreDashboardUI === 'function') window.restoreDashboardUI();
