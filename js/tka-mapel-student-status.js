@@ -8,7 +8,7 @@
   };
 
   function category(value) {
-    const n = Number(value);
+    const n = Number(String(value).replace(',', '.').trim());
     if (!Number.isFinite(n) || n < 200 || n > 800) return null;
     if (n <= 424) return RANGE.kurang;
     if (n <= 599) return RANGE.memadai;
@@ -23,15 +23,13 @@
   }
 
   function isTKA200800(selectorId) {
-    const name = selectedTestName(selectorId);
-    return /TKA/i.test(name);
+    return /TKA/i.test(selectedTestName(selectorId));
   }
 
   function applyTkaMapelAverages() {
     const page = document.getElementById('page-tka');
     if (!page || !isTKA200800('tkaTestSelector')) return;
 
-    /* The TKA page renders average values per mapel/subtes in this grid. */
     page.querySelectorAll('#tkaSubjectGrid .subject-score').forEach(function (el) {
       const c = category(el.textContent);
       if (!c) return;
@@ -44,19 +42,27 @@
     const page = document.getElementById('page-students');
     if (!page || !isTKA200800('studentTestSelector')) return;
 
-    page.querySelectorAll('#studentScores .score-card-value').forEach(function (valueEl) {
-      const c = category(valueEl.textContent);
-      const card = valueEl.closest('.score-card, .card, [class*="score-card"]');
-      if (!c || !card) return;
+    const values = Array.from(page.querySelectorAll('#studentScores .score-card-value'));
+    const seenCards = new Set();
 
-      let status = card.querySelector('.tka-score-status');
-      if (!status) {
-        status = document.createElement('div');
-        status.className = 'tka-score-status';
-        valueEl.insertAdjacentElement('afterend', status);
-      }
+    values.forEach(function (valueEl) {
+      /* Use the nearest actual score card. Never use a generic .card here,
+         because that can encompass several mapel cards and cause duplicates. */
+      const card = valueEl.closest('.score-card');
+      if (!card || seenCards.has(card)) return;
+      seenCards.add(card);
+
+      /* Remove any duplicate statuses left by an earlier render/version. */
+      card.querySelectorAll('.tka-score-status').forEach(function (el) { el.remove(); });
+
+      const c = category(valueEl.textContent);
+      if (!c) return;
+
+      const status = document.createElement('div');
+      status.className = 'tka-score-status';
       status.textContent = c.label;
       status.style.color = c.color;
+      valueEl.insertAdjacentElement('afterend', status);
     });
   }
 
@@ -84,16 +90,19 @@
   window.applyTKAMapelStudentStatus = applyAll;
 
   let timer = null;
+  let applying = false;
   const observer = new MutationObserver(function () {
+    if (applying) return;
     clearTimeout(timer);
-    timer = setTimeout(applyAll, 60);
+    timer = setTimeout(function () {
+      applying = true;
+      try { applyAll(); } finally { applying = false; }
+    }, 100);
   });
 
   function start() {
     try { observer.observe(document.body, { childList: true, subtree: true }); } catch (_) {}
     applyAll();
-    setTimeout(applyAll, 150);
-    setTimeout(applyAll, 500);
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start);
