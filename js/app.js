@@ -15,7 +15,7 @@
           load('js/student-fix.js?v=20260830b', function(){
             load('js/calendar-fix.js?v=20260828b', function(){
               load('js/tka-category-fix.js?v=20260828a', function(){
-                load('js/student-name-alias.js?v=20260830b', function(){
+                load('js/student-name-alias.js?v=20260830c', function(){
                   try { if (typeof initNavigation === 'function') initNavigation(); } catch (e) { console.error('initNavigation:', e); }
                   try { if (typeof initSelectors === 'function') initSelectors(); } catch (e) { console.error('initSelectors:', e); }
                   try { if (typeof initDetailSearch === 'function') initDetailSearch(); } catch (e) { console.error('initDetailSearch:', e); }
@@ -39,6 +39,7 @@
                                 if (typeof renderAll === 'function') renderAll();
                                 if (typeof window.refreshCalendar === 'function') window.refreshCalendar();
                                 if (typeof window.applyTKACategories === 'function') window.applyTKACategories();
+                                if (typeof window.applyStudentNameAliases === 'function') window.applyStudentNameAliases();
                                 load('js/utbk-menu-sync.js?v=20260828a', function(){
                                   try { if (typeof window.refreshAllMenusWithUTBK === 'function') window.refreshAllMenusWithUTBK(); } catch (e) { console.error('UTBK menu refresh:', e); }
                                 });
