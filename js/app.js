@@ -27,18 +27,21 @@
                     load('js/utbk-data.js?v=20260828e', function(){
                       load('js/utbk-kpi-detail.js?v=20260828a', function(){
                         load('js/test-name-fix.js?v=20260828a', function(){
-                          try {
-                            if (typeof window.restoreDashboardUI === 'function') window.restoreDashboardUI();
-                            if (typeof window.applyStudentSummaryFix === 'function') window.applyStudentSummaryFix();
-                            if (typeof populateAllSelectors === 'function') populateAllSelectors();
-                            if (typeof rankingSelector === 'function') rankingSelector();
-                            if (typeof renderAll === 'function') renderAll();
-                            if (typeof window.refreshCalendar === 'function') window.refreshCalendar();
-                            if (typeof window.applyTKACategories === 'function') window.applyTKACategories();
-                            load('js/utbk-menu-sync.js?v=20260828a', function(){
-                              try { if (typeof window.refreshAllMenusWithUTBK === 'function') window.refreshAllMenusWithUTBK(); } catch (e) { console.error('UTBK menu refresh:', e); }
-                            });
-                          } catch (e) { console.error('Post-name-standardization render:', e); }
+                          load('js/student-selector-dedupe.js?v=20260830a', function(){
+                            try {
+                              if (typeof window.restoreDashboardUI === 'function') window.restoreDashboardUI();
+                              if (typeof window.applyStudentSummaryFix === 'function') window.applyStudentSummaryFix();
+                              if (typeof populateAllSelectors === 'function') populateAllSelectors();
+                              if (typeof window.dedupeStudentSelector === 'function') window.dedupeStudentSelector();
+                              if (typeof rankingSelector === 'function') rankingSelector();
+                              if (typeof renderAll === 'function') renderAll();
+                              if (typeof window.refreshCalendar === 'function') window.refreshCalendar();
+                              if (typeof window.applyTKACategories === 'function') window.applyTKACategories();
+                              load('js/utbk-menu-sync.js?v=20260828a', function(){
+                                try { if (typeof window.refreshAllMenusWithUTBK === 'function') window.refreshAllMenusWithUTBK(); } catch (e) { console.error('UTBK menu refresh:', e); }
+                              });
+                            } catch (e) { console.error('Post-name-standardization render:', e); }
+                          });
                         });
                       });
                     });
