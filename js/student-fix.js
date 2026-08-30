@@ -1,6 +1,41 @@
 /* Student page revisions: no per-student average; TKA keeps Mapel Wajib + Mapel Pilihan, UTBK uses Subtes only. */
 (function(){
   function norm(text){ return String(text || '').replace(/\s+/g,' ').trim().toLowerCase(); }
+
+  /* =========================================================
+     STUDENT NAME ALIAS
+     Adek's Ruangguru anonymous email belongs to Aqhsa Aqila Hidayat.
+     Wherever this student record is displayed, use the real display name.
+  ========================================================= */
+  const STUDENT_EMAIL_ALIASES = {
+    'adekgm42qkiz6wiz@anonymous.ruangguru.com': 'Aqhsa Aqila Hidayat'
+  };
+
+  function getStudentEmail(student){
+    if(!student) return '';
+    return String(
+      student.email ||
+      student.email_siswa ||
+      student.email_student ||
+      student.email_address ||
+      student.username ||
+      ''
+    ).trim().toLowerCase();
+  }
+
+  function applyStudentNameAliases(){
+    try{
+      if(!window.dashboardData || !Array.isArray(window.dashboardData.students)) return;
+      window.dashboardData.students.forEach(student => {
+        const email = getStudentEmail(student);
+        if(STUDENT_EMAIL_ALIASES[email]){
+          student.nama = STUDENT_EMAIL_ALIASES[email];
+          student.name = STUDENT_EMAIL_ALIASES[email];
+        }
+      });
+    }catch(e){ console.error('Student name alias:', e); }
+  }
+
   function isUTBK(){
     try {
       if(typeof currentStudentTestId==='undefined') return false;
@@ -9,6 +44,7 @@
     } catch(e) {}
     return false;
   }
+
   function removeCardByTitle(title){
     const wanted=norm(title);
     document.querySelectorAll('#studentScores .card, #studentScores section, #studentScores .student-section').forEach(card=>{
@@ -16,6 +52,7 @@
       if(titleEl && (norm(titleEl.textContent).replace(/^\S+\s+/,'')===wanted || norm(titleEl.textContent).includes(wanted))) card.remove();
     });
   }
+
   function renameCardTitle(from,to){
     const wanted=norm(from);
     document.querySelectorAll('#studentScores .card-title, #studentScores h2, #studentScores h3, #studentScores .section-title').forEach(el=>{
@@ -23,6 +60,7 @@
       if(text===wanted || text.includes(wanted)) el.textContent=to;
     });
   }
+
   function removeAverageKpi(){
     const profile=document.getElementById('studentProfile');
     if(!profile) return;
@@ -31,7 +69,9 @@
       if(label && norm(label.textContent).startsWith('rata-rata')) card.remove();
     });
   }
+
   function applyStudentSummary(){
+    applyStudentNameAliases();
     const profile=document.getElementById('studentProfile');
     const scores=document.getElementById('studentScores');
     if(!profile) return;
@@ -58,17 +98,68 @@
       if(text==='terendah' || text.startsWith('terendah')){ label.textContent='Terendah'; const note=card.querySelector('.kpi-note'); if(note) note.textContent=lowNames.join(', '); }
     });
   }
+
   function install(){
+    applyStudentNameAliases();
+
+    /* Re-apply aliases before the native student selector is populated. */
+    if(typeof window.populateStudentSelector==='function' && !window.populateStudentSelector.__studentAliasFix){
+      const originalPopulateStudentSelector=window.populateStudentSelector;
+      const wrappedPopulateStudentSelector=function(){
+        applyStudentNameAliases();
+        const result=originalPopulateStudentSelector.apply(this,arguments);
+
+        /* Remove duplicate display names from the selector only. */
+        try{
+          const selector=document.getElementById('studentSelector');
+          if(selector){
+            const seen=new Set();
+            Array.from(selector.options).forEach(option=>{
+              const key=norm(option.textContent);
+              if(!key) return;
+              if(seen.has(key)) option.remove();
+              else seen.add(key);
+            });
+          }
+        }catch(e){ console.error('Student selector alias cleanup:', e); }
+
+        return result;
+      };
+      wrappedPopulateStudentSelector.__studentAliasFix=true;
+      window.populateStudentSelector=wrappedPopulateStudentSelector;
+    }
+
     if(typeof window.renderStudentDetail==='function' && !window.renderStudentDetail.__studentFix){
       const original=window.renderStudentDetail;
-      const wrapped=function(){ const result=original.apply(this,arguments); setTimeout(applyStudentSummary,0); setTimeout(applyStudentSummary,100); setTimeout(applyStudentSummary,400); return result; };
-      wrapped.__studentFix=true; window.renderStudentDetail=wrapped;
+      const wrapped=function(){
+        applyStudentNameAliases();
+        const result=original.apply(this,arguments);
+        setTimeout(applyStudentSummary,0);
+        setTimeout(applyStudentSummary,100);
+        setTimeout(applyStudentSummary,400);
+        return result;
+      };
+      wrapped.__studentFix=true;
+      window.renderStudentDetail=wrapped;
     }
     applyStudentSummary(); setTimeout(applyStudentSummary,100); setTimeout(applyStudentSummary,500);
   }
+
   let observerTimer=null;
-  const observer=new MutationObserver(function(){ if(observerTimer) return; observerTimer=setTimeout(function(){ observerTimer=null; applyStudentSummary(); },50); });
-  function startObserver(){ const target=document.getElementById('studentScores') || document.body; observer.observe(target,{childList:true,subtree:true}); install(); }
-  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',()=>setTimeout(startObserver,100)); else setTimeout(startObserver,100);
+  const observer=new MutationObserver(function(){
+    if(observerTimer) return;
+    observerTimer=setTimeout(function(){ observerTimer=null; applyStudentSummary(); },50);
+  });
+
+  function startObserver(){
+    const target=document.getElementById('studentScores') || document.body;
+    observer.observe(target,{childList:true,subtree:true});
+    install();
+  }
+
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',()=>setTimeout(startObserver,100));
+  else setTimeout(startObserver,100);
+
   window.applyStudentSummaryFix=applyStudentSummary;
+  window.applyStudentNameAliases=applyStudentNameAliases;
 })();
