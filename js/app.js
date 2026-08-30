@@ -12,7 +12,7 @@
     load('js/revisions.js?v=20260825h', function(){
       load('js/final-revisions.js?v=20260825h', function(){
         load('js/restore-revisions.js?v=20260825a', function(){
-          load('js/student-fix.js?v=20260830a', function(){
+          load('js/student-fix.js?v=20260830b', function(){
             load('js/calendar-fix.js?v=20260828b', function(){
               load('js/tka-category-fix.js?v=20260828a', function(){
                 try { if (typeof initNavigation === 'function') initNavigation(); } catch (e) { console.error('initNavigation:', e); }
