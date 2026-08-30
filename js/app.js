@@ -9,8 +9,8 @@
   }
 
   load('js/app-original.js?v=20260825h', function(){
-    load('js/revisions.js?v=20260825h', function(){
-      load('js/final-revisions.js?v=20260825h', function(){
+    load('js/revisions.js?v=20260830i', function(){
+      load('js/final-revisions.js?v=20260830i', function(){
         load('js/restore-revisions.js?v=20260825a', function(){
           load('js/student-fix.js?v=20260830b', function(){
             load('js/calendar-fix.js?v=20260828b', function(){
@@ -42,6 +42,7 @@
                                   if (typeof window.applyTKACategories === 'function') window.applyTKACategories();
                                   if (typeof window.applyTKAMapelStudentStatus === 'function') window.applyTKAMapelStudentStatus();
                                   if (typeof window.applyStudentNameAliases === 'function') window.applyStudentNameAliases();
+                                  if (typeof window.applyOverviewImprovements === 'function') window.applyOverviewImprovements();
                                   load('js/utbk-menu-sync.js?v=20260828a', function(){
                                     try { if (typeof window.refreshAllMenusWithUTBK === 'function') window.refreshAllMenusWithUTBK(); } catch (e) { console.error('UTBK menu refresh:', e); }
                                   });
