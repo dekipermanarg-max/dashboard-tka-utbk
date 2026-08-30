@@ -80,7 +80,6 @@
     });
   }
 
-  /* Use the exact original BAC logo uploaded by the user. */
   function useOriginalBACLogo(){
     const brand=document.querySelector('.brand');
     if(!brand || brand.querySelector('.bac-header-logo')) return;
@@ -105,6 +104,7 @@
     addMinToSubjectCards();
     addNotesToStudent();
     useOriginalBACLogo();
+    if(typeof window.applyOverviewImprovements==='function') window.applyOverviewImprovements();
   }
 
   const oldRenderStudentDetail=window.renderStudentDetail;
@@ -117,7 +117,7 @@
   }
   const oldRenderOverview=window.renderOverview;
   if(typeof oldRenderOverview==='function'){
-    window.renderOverview=function(id){oldRenderOverview(id);fixOverviewTitle();addStatusLegend('page-overview');useOriginalBACLogo()};
+    window.renderOverview=function(id){oldRenderOverview(id);fixOverviewTitle();addStatusLegend('page-overview');useOriginalBACLogo();if(typeof window.applyOverviewImprovements==='function') window.applyOverviewImprovements()};
   }
   const oldRenderRanking=window.renderRankingPage;
   if(typeof oldRenderRanking==='function'){
