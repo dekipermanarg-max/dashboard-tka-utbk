@@ -14,7 +14,7 @@
         load('js/restore-revisions.js?v=20260825a', function(){
           load('js/student-fix.js?v=20260830b', function(){
             load('js/calendar-fix.js?v=20260828b', function(){
-              load('js/tka-category-fix.js?v=20260828a', function(){
+              load('js/tka-category-fix.js?v=20260830b', function(){
                 load('js/student-name-alias.js?v=20260830e', function(){
                   try { if (typeof initNavigation === 'function') initNavigation(); } catch (e) { console.error('initNavigation:', e); }
                   try { if (typeof initSelectors === 'function') initSelectors(); } catch (e) { console.error('initSelectors:', e); }
