@@ -13,6 +13,57 @@
     document.head.appendChild(s);
   }
 
+  /* Final guard against duplicate student labels.  The selector is sometimes
+     rebuilt by populateAllSelectors(), so run the cleanup immediately after
+     every rebuild as well as through the dedicated observer script. */
+  function installStudentSelectorGuard(){
+    function norm(v){
+      return String(v == null ? '' : v)
+        .normalize('NFKC')
+        .replace(/\s+/g,' ')
+        .trim()
+        .toLowerCase();
+    }
+
+    function dedupe(select){
+      if(!select) return;
+      const seen = new Set();
+      [...select.options].forEach(function(option){
+        const key = norm(option.textContent);
+        if(!key) return;
+        if(seen.has(key)) option.remove();
+        else seen.add(key);
+      });
+    }
+
+    function run(){
+      dedupe(document.getElementById('studentSelector'));
+      document.querySelectorAll('select').forEach(function(select){
+        const id = norm(select.id);
+        const aria = norm(select.getAttribute('aria-label'));
+        if(id.includes('student') || aria.includes('student') || aria.includes('siswa')) dedupe(select);
+      });
+    }
+
+    const originalPopulate = window.populateAllSelectors;
+    if(typeof originalPopulate === 'function' && !originalPopulate.__dedupeWrapped){
+      function wrappedPopulate(){
+        const result = originalPopulate.apply(this, arguments);
+        run();
+        requestAnimationFrame(run);
+        setTimeout(run, 100);
+        return result;
+      }
+      wrappedPopulate.__dedupeWrapped = true;
+      window.populateAllSelectors = wrappedPopulate;
+    }
+
+    run();
+    requestAnimationFrame(run);
+    setTimeout(run, 100);
+    setTimeout(run, 500);
+  }
+
   load('js/app-original.js?v=20260825h', function(){
     load('js/revisions.js?v=20260830i', function(){
       load('js/final-revisions.js?v=20260830i', function(){
@@ -35,8 +86,9 @@
                         load('js/utbk-data.js?v=20260828e', function(){
                           load('js/utbk-kpi-detail.js?v=20260828a', function(){
                             load('js/test-name-fix.js?v=20260828a', function(){
-                              load('js/student-selector-dedupe.js?v=20260830a', function(){
+                              load('js/student-selector-dedupe.js?v=20260830b', function(){
                                 try {
+                                  installStudentSelectorGuard();
                                   if (typeof window.restoreDashboardUI === 'function') window.restoreDashboardUI();
                                   if (typeof window.applyStudentSummaryFix === 'function') window.applyStudentSummaryFix();
                                   if (typeof populateAllSelectors === 'function') populateAllSelectors();
@@ -48,6 +100,7 @@
                                   if (typeof window.applyTKAMapelStudentStatus === 'function') window.applyTKAMapelStudentStatus();
                                   if (typeof window.applyStudentNameAliases === 'function') window.applyStudentNameAliases();
                                   if (typeof window.applyOverviewImprovements === 'function') window.applyOverviewImprovements();
+                                  installStudentSelectorGuard();
                                   load('js/utbk-menu-sync.js?v=20260828a', function(){
                                     try { if (typeof window.refreshAllMenusWithUTBK === 'function') window.refreshAllMenusWithUTBK(); } catch (e) { console.error('UTBK menu refresh:', e); }
                                     load('js/tka-legend-visibility.js?v=20260830a');
