@@ -1,5 +1,10 @@
-/* Dashboard loader — stable load order */
+/* Dashboard loader — stable load order + UI polish */
 (function(){
+  const polish=document.createElement('link');
+  polish.rel='stylesheet';
+  polish.href='css/polish.css?v=20260830a';
+  document.head.appendChild(polish);
+
   function load(src, onload){
     const s = document.createElement('script');
     s.src = src;
