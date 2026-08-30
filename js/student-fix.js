@@ -13,20 +13,43 @@
 
   function getStudentEmail(student){
     if(!student) return '';
-    return String(
-      student.email ||
-      student.email_siswa ||
-      student.email_student ||
-      student.email_address ||
-      student.username ||
-      ''
-    ).trim().toLowerCase();
+    const direct = [
+      student.email,
+      student.email_siswa,
+      student.email_student,
+      student.email_address,
+      student.username,
+      student.Email,
+      student['Email Siswa'],
+      student['Email Student'],
+      student['email siswa'],
+      student['email student']
+    ];
+    for(const value of direct){
+      const email=String(value || '').trim().toLowerCase();
+      if(STUDENT_EMAIL_ALIASES[email]) return email;
+    }
+    /* Fallback: API field naming can vary. Inspect every scalar field. */
+    for(const value of Object.values(student)){
+      const email=String(value || '').trim().toLowerCase();
+      if(STUDENT_EMAIL_ALIASES[email]) return email;
+    }
+    return '';
+  }
+
+  function getStudentsData(){
+    try{
+      if(window.dashboardData && Array.isArray(window.dashboardData.students)) return window.dashboardData.students;
+      if(typeof dashboardData !== 'undefined' && dashboardData && Array.isArray(dashboardData.students)) return dashboardData.students;
+    }catch(e){}
+    return [];
   }
 
   function applyStudentNameAliases(){
     try{
-      if(!window.dashboardData || !Array.isArray(window.dashboardData.students)) return;
-      window.dashboardData.students.forEach(student => {
+      const students=getStudentsData();
+      if(!students.length) return;
+      students.forEach(student => {
         const email = getStudentEmail(student);
         if(STUDENT_EMAIL_ALIASES[email]){
           student.nama = STUDENT_EMAIL_ALIASES[email];
@@ -99,6 +122,14 @@
     });
   }
 
+  function repopulateStudentSelector(){
+    try{
+      applyStudentNameAliases();
+      if(typeof window.populateStudentSelector==='function' && window.populateStudentSelector.__studentAliasFix) return;
+      if(typeof window.populateStudentSelector==='function') window.populateStudentSelector();
+    }catch(e){ console.error('Student selector repopulate:',e); }
+  }
+
   function install(){
     applyStudentNameAliases();
 
@@ -107,23 +138,7 @@
       const originalPopulateStudentSelector=window.populateStudentSelector;
       const wrappedPopulateStudentSelector=function(){
         applyStudentNameAliases();
-        const result=originalPopulateStudentSelector.apply(this,arguments);
-
-        /* Remove duplicate display names from the selector only. */
-        try{
-          const selector=document.getElementById('studentSelector');
-          if(selector){
-            const seen=new Set();
-            Array.from(selector.options).forEach(option=>{
-              const key=norm(option.textContent);
-              if(!key) return;
-              if(seen.has(key)) option.remove();
-              else seen.add(key);
-            });
-          }
-        }catch(e){ console.error('Student selector alias cleanup:', e); }
-
-        return result;
+        return originalPopulateStudentSelector.apply(this,arguments);
       };
       wrappedPopulateStudentSelector.__studentAliasFix=true;
       window.populateStudentSelector=wrappedPopulateStudentSelector;
