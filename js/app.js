@@ -50,6 +50,7 @@
                                   if (typeof window.applyOverviewImprovements === 'function') window.applyOverviewImprovements();
                                   load('js/utbk-menu-sync.js?v=20260828a', function(){
                                     try { if (typeof window.refreshAllMenusWithUTBK === 'function') window.refreshAllMenusWithUTBK(); } catch (e) { console.error('UTBK menu refresh:', e); }
+                                    load('js/tka-legend-visibility.js?v=20260830a');
                                   });
                                 } catch (e) { console.error('Post-name-standardization render:', e); }
                               });
