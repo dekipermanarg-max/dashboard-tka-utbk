@@ -1,8 +1,7 @@
 /* Student selector dedupe — EMAIL FIRST
    The student's email is the identity key. Names are display labels only.
-   If the source accidentally supplies the same student more than once, keep
-   one option. If an email field is not exposed on the student object, use a
-   normalized name only as a last-resort duplicate guard.
+   Known source-name variants are canonicalized only when the email is not
+   exposed by the selector data, so the web keeps one stable display name.
 */
 (function(){
   function norm(v){
@@ -17,6 +16,27 @@
     return String(v == null ? '' : v).trim().toLowerCase();
   }
 
+  /*
+     These are source-data spelling variants of the same students.
+     Keep the existing web display names as the canonical labels.
+  */
+  const NAME_ALIASES = new Map([
+    ['eqbal atha marvile', 'Eqbal Atha Marvile'],
+    ['eqbal atha maravile', 'Eqbal Atha Marvile'],
+    ['muhammad zidan alfarabi', 'Muhammad Zidan Alfarabi'],
+    ['muhammad zidan alfaribi', 'Muhammad Zidan Alfarabi']
+  ]);
+
+  function canonicalName(v){
+    const n = norm(v);
+    return NAME_ALIASES.get(n) || String(v == null ? '' : v).replace(/\s+/g,' ').trim();
+  }
+
+  function canonicalKey(v){
+    const n = norm(v);
+    return norm(NAME_ALIASES.get(n) || n);
+  }
+
   function getStudents(){
     try {
       const d = window.dashboardData || (typeof dashboardData !== 'undefined' ? dashboardData : null);
@@ -27,7 +47,6 @@
   function studentEmail(student){
     if(!student) return '';
 
-    /* First check common API field names. */
     const direct = [
       student.email,
       student.Email,
@@ -49,7 +68,6 @@
       if(email && email.includes('@')) return email;
     }
 
-    /* API field names can vary. Search all scalar values for an email. */
     try {
       for(const value of Object.values(student)){
         if(value == null || typeof value === 'object') continue;
@@ -61,18 +79,33 @@
     return '';
   }
 
+  function displayNameFor(student, option){
+    return canonicalName(
+      option?.textContent ||
+      student?.display_name ||
+      student?.nama ||
+      student?.name ||
+      student?.nama_siswa ||
+      student?.student_name || ''
+    );
+  }
+
   function identityFor(student, option){
     const email = studentEmail(student);
     if(email) return 'email:' + email;
 
-    /* Last resort only: exact normalized display name. */
-    const name = norm(
-      option?.textContent ||
-      student?.nama ||
-      student?.name ||
-      student?.display_name || ''
-    );
+    /* Last resort: canonical display name, including known typo variants. */
+    const name = canonicalKey(displayNameFor(student, option));
     return name ? 'name:' + name : '';
+  }
+
+  function applyCanonicalLabels(select, studentsById){
+    [...select.options].forEach(function(option){
+      const student = studentsById.get(String(option.value));
+      const current = option.textContent || '';
+      const canonical = displayNameFor(student, option);
+      if(canonical && norm(canonical) !== norm(current)) option.textContent = canonical;
+    });
   }
 
   function dedupeSelect(select){
@@ -87,16 +120,18 @@
     });
 
     const selectedValue = String(select.value || '');
-    const seenIdentity = new Set();
     let keeperValue = selectedValue;
 
+    applyCanonicalLabels(select, byId);
+
+    const seenIdentity = new Set();
     [...select.options].forEach(function(option){
       const student = byId.get(String(option.value));
       const identity = identityFor(student, option);
       if(!identity) return;
 
       if(seenIdentity.has(identity)){
-        if(String(option.value) === selectedValue && !keeperValue){
+        if(String(option.value) === selectedValue){
           const keeper = [...select.options].find(function(o){
             if(o === option) return false;
             const s = byId.get(String(o.value));
