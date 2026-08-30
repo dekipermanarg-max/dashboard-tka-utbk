@@ -13,9 +13,8 @@
     document.head.appendChild(s);
   }
 
-  /* Final guard against duplicate student labels.  The selector is sometimes
-     rebuilt by populateAllSelectors(), so run the cleanup immediately after
-     every rebuild as well as through the dedicated observer script. */
+  /* Final guard against duplicate student labels. The selector can be
+     rebuilt by populateAllSelectors(), so clean it after every rebuild. */
   function installStudentSelectorGuard(){
     function norm(v){
       return String(v == null ? '' : v)
@@ -72,7 +71,7 @@
             load('js/calendar-fix.js?v=20260828b', function(){
               load('js/tka-category-fix.js?v=20260830b', function(){
                 load('js/tka-mapel-student-status.js?v=20260830a', function(){
-                  load('js/student-name-alias.js?v=20260830e', function(){
+                  load('js/student-name-alias.js?v=20260830f', function(){
                     try { if (typeof initNavigation === 'function') initNavigation(); } catch (e) { console.error('initNavigation:', e); }
                     try { if (typeof initSelectors === 'function') initSelectors(); } catch (e) { console.error('initSelectors:', e); }
                     try { if (typeof initDetailSearch === 'function') initDetailSearch(); } catch (e) { console.error('initDetailSearch:', e); }
@@ -86,7 +85,9 @@
                         load('js/utbk-data.js?v=20260828e', function(){
                           load('js/utbk-kpi-detail.js?v=20260828a', function(){
                             load('js/test-name-fix.js?v=20260828a', function(){
-                              load('js/student-selector-dedupe.js?v=20260830b', function(){
+                              /* Bumped cache-buster so the latest email-first
+                                 dedupe code cannot be served from stale cache. */
+                              load('js/student-selector-dedupe.js?v=20260830c', function(){
                                 try {
                                   installStudentSelectorGuard();
                                   if (typeof window.restoreDashboardUI === 'function') window.restoreDashboardUI();
@@ -101,6 +102,7 @@
                                   if (typeof window.applyStudentNameAliases === 'function') window.applyStudentNameAliases();
                                   if (typeof window.applyOverviewImprovements === 'function') window.applyOverviewImprovements();
                                   installStudentSelectorGuard();
+                                  if (typeof window.dedupeStudentSelector === 'function') window.dedupeStudentSelector();
                                   load('js/utbk-menu-sync.js?v=20260828a', function(){
                                     try { if (typeof window.refreshAllMenusWithUTBK === 'function') window.refreshAllMenusWithUTBK(); } catch (e) { console.error('UTBK menu refresh:', e); }
                                     load('js/tka-legend-visibility.js?v=20260830a');
