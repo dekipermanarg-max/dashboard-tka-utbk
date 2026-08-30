@@ -1,13 +1,22 @@
 /* Student display-name alias
-   Adek is the Ruangguru anonymous record for Aqhsa Aqila Hidayat.
-   Keep the original student_id so all TKA/UTBK scores stay attached.
+   Identity is based on EMAIL, not the student's current input name.
+   The anonymous Ruangguru record may later arrive with a different name,
+   but the web must keep the established display name.
 */
 (function(){
-  const RAW_NAME = 'adek';
+  const ALIAS_EMAIL = 'adekgm42qkiz6wiz@anonymous.ruangguru.com';
   const DISPLAY_NAME = 'Aqhsa Aqila Hidayat';
 
   function norm(v){
-    return String(v == null ? '' : v).replace(/\s+/g,' ').trim().toLowerCase();
+    return String(v == null ? '' : v)
+      .normalize('NFKC')
+      .replace(/\s+/g,' ')
+      .trim()
+      .toLowerCase();
+  }
+
+  function normEmail(v){
+    return String(v == null ? '' : v).trim().toLowerCase();
   }
 
   function getData(){
@@ -15,32 +24,61 @@
     catch(e){ return null; }
   }
 
-  function getAliasStudent(){
-    const d=getData();
-    if(!d || !Array.isArray(d.students)) return null;
-    return d.students.find(s => norm(s?.nama)===RAW_NAME || norm(s?.name)===RAW_NAME) || null;
+  /*
+     IMPORTANT:
+     Email is the identity key. Never use the student's current name as the
+     deciding factor, because the source may later change Adek to another name.
+  */
+  function isAliasStudent(student){
+    if(!student) return false;
+    const emails = [
+      student.email,
+      student.Email,
+      student.email_siswa,
+      student.student_email,
+      student.studentEmail,
+      student.emailSiswa
+    ];
+    return emails.some(function(email){
+      return normEmail(email) === ALIAS_EMAIL;
+    });
   }
 
   function applyDataAlias(){
-    const s=getAliasStudent();
-    if(!s) return null;
-    s.nama=DISPLAY_NAME;
-    s.name=DISPLAY_NAME;
-    s.display_name=DISPLAY_NAME;
-    s.nama_siswa=DISPLAY_NAME;
-    s.student_name=DISPLAY_NAME;
-    s.__display_alias=DISPLAY_NAME;
-    return s;
+    const d=getData();
+    if(!d || !Array.isArray(d.students)) return [];
+
+    const matched=[];
+    d.students.forEach(function(s){
+      if(!isAliasStudent(s)) return;
+
+      /* Keep every source identity/ID intact; only standardize display fields. */
+      s.nama=DISPLAY_NAME;
+      s.name=DISPLAY_NAME;
+      s.display_name=DISPLAY_NAME;
+      s.nama_siswa=DISPLAY_NAME;
+      s.student_name=DISPLAY_NAME;
+      s.__display_alias=DISPLAY_NAME;
+      matched.push(s);
+    });
+
+    return matched;
   }
 
-  /* Rename the visible option only. Never change option.value/student_id. */
-  function syncStudentSelector(student){
+  /* Rename visible options for every matching student ID. */
+  function syncStudentSelector(students){
     const selector=document.getElementById('studentSelector');
-    if(!selector || !student || student.student_id==null) return false;
-    const id=String(student.student_id);
+    if(!selector || !students.length) return false;
+
+    const ids=new Set(
+      students
+        .filter(s => s && s.student_id != null)
+        .map(s => String(s.student_id))
+    );
+
     let found=false;
-    [...selector.options].forEach(o=>{
-      if(String(o.value)===id){
+    [...selector.options].forEach(function(o){
+      if(ids.has(String(o.value))){
         o.textContent=DISPLAY_NAME;
         found=true;
       }
@@ -48,21 +86,35 @@
     return found;
   }
 
-  /* If another script rebuilds the selector from raw data, catch Adek again. */
+  /*
+     If another script rebuilds the selector from source data, replace the
+     anonymous raw label too. This is a display-only operation.
+  */
   function renameRawAdekEverywhere(){
-    document.querySelectorAll('select option').forEach(o=>{
-      if(norm(o.textContent)===RAW_NAME) o.textContent=DISPLAY_NAME;
+    document.querySelectorAll('select option').forEach(function(o){
+      if(norm(o.textContent)==='adek') o.textContent=DISPLAY_NAME;
     });
-    document.querySelectorAll('h1,h2,h3,.student-name,.profile-name,.student-header-name').forEach(el=>{
-      if(norm(el.textContent)===RAW_NAME) el.textContent=DISPLAY_NAME;
+    document.querySelectorAll('h1,h2,h3,.student-name,.profile-name,.student-header-name').forEach(function(el){
+      if(norm(el.textContent)==='adek') el.textContent=DISPLAY_NAME;
     });
   }
 
   function applyAll(){
-    const student=applyDataAlias();
-    syncStudentSelector(student);
+    const students=applyDataAlias();
+    syncStudentSelector(students);
     renameRawAdekEverywhere();
   }
+
+  /* Public helper for any future renderer that needs the canonical label. */
+  window.getStudentDisplayName=function(student){
+    return isAliasStudent(student) ? DISPLAY_NAME :
+      String(
+        student?.display_name ||
+        student?.nama ||
+        student?.name ||
+        ''
+      );
+  };
 
   window.applyStudentNameAliases=applyAll;
 
@@ -70,9 +122,9 @@
     applyAll();
     if(!document.body) return;
     let timer=null;
-    const observer=new MutationObserver(()=>{
+    const observer=new MutationObserver(function(){
       if(timer) return;
-      timer=setTimeout(()=>{timer=null;applyAll();},30);
+      timer=setTimeout(function(){timer=null;applyAll();},30);
     });
     observer.observe(document.body,{childList:true,subtree:true});
   }
