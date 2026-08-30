@@ -32,14 +32,18 @@
     return true;
   }
 
+  function getData(){
+    try{
+      if(window.dashboardData) return window.dashboardData;
+      if(typeof dashboardData !== 'undefined') return dashboardData;
+    }catch(e){}
+    return null;
+  }
+
   function applyAliases(){
-    const data = window.dashboardData;
+    const data = getData();
     if(!data) return;
-
-    // Apply to student master data.
     if(Array.isArray(data.students)) data.students.forEach(applyToObject);
-
-    // Also cover result rows in case the selector is sourced from results.
     if(Array.isArray(data.results)) data.results.forEach(applyToObject);
   }
 
@@ -53,24 +57,43 @@
     });
   }
 
+  /* Fix the profile heading when the selector uses the alias but the raw API name is still rendered. */
+  function fixRenderedStudentProfile(){
+    const selector = document.getElementById('studentSelector');
+    if(!selector) return;
+    const selected = selector.options[selector.selectedIndex];
+    if(!selected || normalize(selected.textContent) !== 'aqhsa aqila hidayat') return;
+
+    const profile = document.getElementById('studentProfile');
+    if(!profile) return;
+    profile.querySelectorAll('h1,h2,h3,.student-name,.profile-name').forEach(el => {
+      if(normalize(el.textContent) === 'adek'){
+        el.textContent = 'Aqhsa Aqila Hidayat';
+      }
+    });
+  }
+
   function applyAll(){
     applyAliases();
     fixRenderedSelectors();
+    fixRenderedStudentProfile();
   }
 
   window.applyStudentNameAliases = applyAll;
 
-  // Selector contents can be rebuilt by other dashboard scripts, so keep the
-  // display alias applied whenever options are regenerated.
+  /* Selector/profile contents can be rebuilt by other dashboard scripts. */
   function startObserver(){
     if(!document.body) return;
     let timer = null;
     const observer = new MutationObserver(function(){
       if(timer) return;
-      timer = setTimeout(function(){ timer = null; fixRenderedSelectors(); }, 20);
+      timer = setTimeout(function(){
+        timer = null;
+        applyAll();
+      }, 20);
     });
     observer.observe(document.body, {childList:true, subtree:true});
-    fixRenderedSelectors();
+    applyAll();
   }
 
   if(document.readyState === 'loading'){
