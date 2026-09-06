@@ -66,7 +66,9 @@
                                       if(typeof window.dedupeStudentSelector==='function')window.dedupeStudentSelector();
                                       load('js/utbk-menu-sync.js?v=20260828a',function(){
                                         try{if(typeof window.refreshAllMenusWithUTBK==='function')window.refreshAllMenusWithUTBK();}catch(e){console.error('UTBK menu refresh:',e);}
-                                        load('js/tka-legend-visibility.js?v=20260830a');
+                                        load('js/tka-legend-visibility.js?v=20260830a',function(){
+                                          try{if(typeof window.initTOImport==='function')window.initTOImport();}catch(e){console.error('TO import init:',e);}
+                                        });
                                       });
                                     }catch(e){console.error('Post-name-standardization render:',e);}
                                   });
