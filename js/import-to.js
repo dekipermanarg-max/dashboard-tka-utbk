@@ -28,11 +28,27 @@
   }
 
   function ensureMenu(){
-    const nav=document.querySelector('.menu'); if(!nav) return;
+    const nav=document.querySelector('.menu');
+    if(!nav) return false;
     let b=nav.querySelector('[data-page="import-to"]');
-    if(!b){b=document.createElement('button');b.type='button';b.dataset.page='import-to';b.innerHTML='📥 <span>Import TO</span>';nav.appendChild(b);}
-    if(!b.__importBound){b.__importBound=true;b.addEventListener('click',showPage);}
+    if(!b){
+      b=document.createElement('button');
+      b.type='button';
+      b.dataset.page='import-to';
+      b.innerHTML='📥 <span>Import TO</span>';
+      nav.appendChild(b);
+    }
+    b.setAttribute('aria-label','Import TO');
+    b.style.display='block';
+    b.style.visibility='visible';
+    b.style.opacity='1';
+    if(!b.__importBound){
+      b.__importBound=true;
+      b.addEventListener('click',function(ev){ev.preventDefault();ev.stopPropagation();showPage();});
+    }
+    return true;
   }
+
   function showPage(){
     ensurePage();
     document.querySelectorAll('.page').forEach(p=>p.style.display='none');
@@ -44,7 +60,7 @@
   function splitLine(line,sep){let out=[],cur='',q=false;for(let i=0;i<line.length;i++){const c=line[i];if(c==='\"'){if(q&&line[i+1]==='\"'){cur+='\"';i++;}else q=!q;}else if(c===sep&&!q){out.push(cur);cur='';}else cur+=c;}out.push(cur);return out;}
   function parseText(text){const clean=String(text||'').replace(/^\uFEFF/,'').trim();if(!clean)return [];const lines=clean.split(/\r?\n/).filter(x=>x.trim());const first=lines[0];const sep=first.includes('\t')?'\t':(first.includes(';')?';':',');const headers=splitLine(first,sep).map(x=>norm(x));return lines.slice(1).map(line=>{const vals=splitLine(line,sep);const o={};headers.forEach((h,i)=>o[h]=String(vals[i]??'').trim());return o;});}
   function value(o,names){for(const n of names){const k=norm(n);if(o[k]!==undefined&&o[k]!=='')return o[k];}return '';}
-  function subjectColumns(data){const reserved=new Set(['email','e-mail','nama','name','student','student name','test_id','test id','nilai','score','subtest','subtes','mapel','subject']);const keys=new Set();data.forEach(o=>Object.keys(o).forEach(k=>{if(!reserved.has(norm(k)))keys.add(k);}));return [...keys];}
+  function subjectColumns(data){const reserved=new Set(['email','e-mail','nama','name','student','student name','test_id','test id','nilai','score','subtest','subtes','mapel','subject','durasi pengerjaan','jumlah keluar tab','durasi keluar tab']);const keys=new Set();data.forEach(o=>Object.keys(o).forEach(k=>{if(!reserved.has(norm(k)))keys.add(k);}));return [...keys];}
   function masterStudents(){return Array.isArray(window.dashboardData?.students)?window.dashboardData.students:[];}
   function masterEmail(s){return emailNorm(s.email||s.email_address||s.email_siswa||s.mail||'');}
   function masterName(s){return s.nama||s.name||s.student_name||'Tanpa Nama';}
@@ -67,6 +83,23 @@
   }
   window.initTOImport=bind;
   window.showImportTO=showPage;
-  function start(){bind();}
+
+  let menuObserverStarted=false;
+  function keepMenuAlive(){
+    if(menuObserverStarted)return;
+    menuObserverStarted=true;
+    const root=document.querySelector('.sidebar')||document.body;
+    if(root){
+      const observer=new MutationObserver(function(){ensureMenu();});
+      observer.observe(root,{childList:true,subtree:true});
+    }
+    ensureMenu();
+    setTimeout(ensureMenu,100);
+    setTimeout(ensureMenu,500);
+    setTimeout(ensureMenu,1500);
+    setTimeout(ensureMenu,3000);
+  }
+
+  function start(){css();ensurePage();ensureMenu();keepMenuAlive();}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start();
 })();
