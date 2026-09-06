@@ -14,6 +14,12 @@
     document.head.appendChild(s);
     setTimeout(function(){if(!finished){console.warn('Timeout memuat',src);done();}},5000);
   }
+
+  /* Import TO must be available independently of the long dashboard boot chain. */
+  load('js/import-to.js?v=20260906b',function(){
+    try{if(typeof window.initTOImport==='function')window.initTOImport();}catch(e){console.error('TO import boot:',e);}
+  });
+
   function installStudentSelectorGuard(){
     function norm(v){return String(v==null?'':v).normalize('NFKC').replace(/\s+/g,' ').trim().toLowerCase();}
     function dedupe(select){if(!select)return;const seen=new Set();[...select.options].forEach(o=>{const k=norm(o.textContent);if(!k)return;if(seen.has(k))o.remove();else seen.add(k);});}
@@ -67,9 +73,7 @@
                                       load('js/utbk-menu-sync.js?v=20260828a',function(){
                                         try{if(typeof window.refreshAllMenusWithUTBK==='function')window.refreshAllMenusWithUTBK();}catch(e){console.error('UTBK menu refresh:',e);}
                                         load('js/tka-legend-visibility.js?v=20260830a',function(){
-                                          load('js/import-to.js?v=20260906a',function(){
-                                            try{if(typeof window.initTOImport==='function')window.initTOImport();}catch(e){console.error('TO import init:',e);}
-                                          });
+                                          try{if(typeof window.initTOImport==='function')window.initTOImport();}catch(e){console.error('TO import init:',e);}
                                         });
                                       });
                                     }catch(e){console.error('Post-name-standardization render:',e);}
