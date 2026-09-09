@@ -1,0 +1,19 @@
+"use client"
+import {useEffect,useMemo,useState} from 'react'
+import Link from 'next/link'
+import {createClient} from '@supabase/supabase-js'
+
+const supabaseUrl=process.env.NEXT_PUBLIC_SUPABASE_URL
+const supabaseKey=process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+const supabase=supabaseUrl&&supabaseKey?createClient(supabaseUrl,supabaseKey):null
+
+type Row={assessment_type:string;event_name:string;status:string|null;branch:string|null;scores:Record<string,number|string|null>}
+export default function Home(){
+ const [rows,setRows]=useState<Row[]>([]); const [loading,setLoading]=useState(true)
+ useEffect(()=>{(async()=>{if(!supabase){setLoading(false);return};const {data}=await supabase.from('assessments').select('assessment_type,event_name,status,branch,scores');if(data)setRows(data as Row[]);setLoading(false)})()},[])
+ const tka=rows.filter(r=>r.assessment_type==='TKA'), utbk=rows.filter(r=>r.assessment_type==='UTBK')
+ const completed=rows.filter(r=>r.status==='COMPLETED').length
+ const branches=useMemo(()=>{const m=new Map<string,number>();rows.forEach(r=>r.branch&&m.set(r.branch,(m.get(r.branch)||0)+1));return [...m.entries()].sort((a,b)=>b[1]-a[1]).slice(0,7)},[rows])
+ const subjects=useMemo(()=>{const m=new Map<string,{sum:number,n:number}>();rows.forEach(r=>Object.entries(r.scores||{}).forEach(([k,v])=>{const n=Number(v);if(Number.isFinite(n)){const x=m.get(k)||{sum:0,n:0};x.sum+=n;x.n++;m.set(k,x)}}));return [...m.entries()].map(([k,v])=>[k,v.sum/v.n] as const).sort((a,b)=>b[1]-a[1]).slice(0,8)},[rows])
+ return <div className="page"><header className="topbar"><div className="brand">TKA <span>×</span> UTBK</div><nav className="nav"><Link className="active" href="/">Dashboard</Link><Link href="/import">Import Data</Link></nav></header><main className="main"><section className="hero"><div><div className="eyebrow">Student Performance Analytics</div><h1 className="title">Dashboard Performa Siswa</h1><p className="sub">Ringkasan hasil TKA & UTBK dalam satu tempat.</p></div></section><section className="cards"><div className="card"><div className="label">Total Assessment</div><div className="value">{loading?'—':rows.length}</div><div className="delta">TKA + UTBK</div></div><div className="card"><div className="label">TKA</div><div className="value">{loading?'—':tka.length}</div><div className="delta">record tersimpan</div></div><div className="card"><div className="label">UTBK</div><div className="value">{loading?'—':utbk.length}</div><div className="delta">record tersimpan</div></div><div className="card"><div className="label">Completed</div><div className="value">{loading?'—':completed}</div><div className="delta">status COMPLETED</div></div></section><div className="grid"><section className="panel"><h2>Distribusi per Cabang</h2>{branches.length?branches.map(([name,n])=><div className="bar" key={name}><div className="barline"><span>{name}</span><strong>{n}</strong></div><div className="track"><div className="fill" style={{width:`${Math.max(6,n/branches[0][1]*100)}%`}}/></div></div>):<p className="sub">Belum ada data assessment.</p>}</section><section className="panel"><h2>Rata-rata per Mapel</h2>{subjects.length?subjects.map(([name,avg])=><div className="bar" key={name}><div className="barline"><span>{name}</span><strong>{avg.toFixed(1)}</strong></div></div>):<p className="sub">Data skor akan muncul setelah import.</p>}</section></div><section className="panel" style={{marginTop:16}}><h2>Status koneksi</h2><p className="sub">{supabase?'Terhubung ke Supabase dashboard-tka-utbk.':'Environment variable Supabase belum dipasang. Repo sudah siap untuk dihubungkan ke database baru.'}</p></section></main></div>
+}
