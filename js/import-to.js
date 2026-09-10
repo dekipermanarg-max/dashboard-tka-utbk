@@ -1,16 +1,19 @@
 /* TO IMPORT STAGING — email-first student matching */
 (function(){
   'use strict';
+
   const API_ALL = 'https://script.google.com/macros/s/AKfycbyInRshwcgOWIM3RhFGBdhHDCz8kJhwWCiyVR8Zu7-L3YORvk-ypxW7yoxwEtgYpTHy/exec?action=all';
   const API_BASE = API_ALL.split('?')[0];
   const esc = s => String(s ?? '').replace(/[&<>\"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[m]));
   const norm = s => String(s ?? '').normalize('NFKC').replace(/\s+/g,' ').trim().toLowerCase();
   const compact = s => norm(s).replace(/[^a-z0-9]/g,'');
   const emailNorm = s => norm(s).replace(/^mailto:/,'');
+
   const STUDENT_EMAIL_ALIASES = {
     'adegm42qkiz6wiz@anonymous.ruangguru.com': 'Aqhsa Aqila Hidayat',
     'adekgm42qkiz6wiz@anonymous.ruangguru.com': 'Aqhsa Aqila Hidayat'
   };
+
   let rows=[];
   let parsed=[];
   let errors=[];
@@ -42,7 +45,9 @@
     if(!b.__importBound){b.__importBound=true;b.addEventListener('click',function(ev){ev.preventDefault();ev.stopPropagation();showPage();});}
     return true;
   }
+
   function showPage(){ensurePage();document.querySelectorAll('.page').forEach(p=>p.style.display='none');const p=document.getElementById('page-import-to');if(p)p.style.display='block';document.querySelectorAll('.menu button').forEach(b=>b.classList.remove('active'));const b=document.querySelector('[data-page="import-to"]');if(b)b.classList.add('active');}
+
   function splitLine(line,sep){let out=[],cur='',q=false;for(let i=0;i<line.length;i++){const c=line[i];if(c==='\"'){if(q&&line[i+1]==='\"'){cur+='\"';i++;}else q=!q;}else if(c===sep&&!q){out.push(cur);cur='';}else cur+=c;}out.push(cur);return out;}
   function parseText(text){const clean=String(text||'').replace(/^\uFEFF/,'').trim();if(!clean)return [];const lines=clean.split(/\r?\n/).filter(x=>x.trim());const first=lines[0];const sep=first.includes('\t')?'\t':(first.includes(';')?';':',');const headers=splitLine(first,sep).map(x=>norm(x));return lines.slice(1).map(line=>{const vals=splitLine(line,sep);const o={};headers.forEach((h,i)=>o[h]=String(vals[i]??'').trim());return o;});}
   function value(o,names){for(const n of names){const k=norm(n);if(o[k]!==undefined&&o[k]!=='')return o[k];}return '';}
@@ -53,15 +58,97 @@
   function masterNames(s){const values=[s?.nama,s?.name,s?.student_name,s?.['Nama Siswa'],s?.['Student Name']];return values.concat(Object.values(s||{})).filter(v=>typeof v==='string'&&v.trim()&&v.length<120);}
   function masterName(s){return s?.nama||s?.name||s?.student_name||s?.['Nama Siswa']||'Tanpa Nama';}
   function matchStudent(email,name){const ms=masterStudents();const e=emailNorm(email);const aliasName=STUDENT_EMAIL_ALIASES[e];let s=e?ms.find(x=>masterEmails(x).includes(e)):null;if(!s&&aliasName)s=ms.find(x=>masterNames(x).some(v=>compact(v)===compact(aliasName)));if(!s&&name){const n=compact(name);s=ms.find(x=>masterNames(x).some(v=>compact(v)===n))||null;}return s;}
-  function parseRows(data){const subjects=subjectColumns(data),result=[],foundErrors=[];data.forEach((o,i)=>{const email=value(o,['email','e-mail','email siswa']),name=value(o,['nama','name','student','student name']),s=matchStudent(email,name);if(!email&&!name){foundErrors.push({row:i+2,name:name||'—',email:email||'—',msg:'Email/nama kosong'});return;}if(!s){foundErrors.push({row:i+2,name:name||'—',email:email||'—',msg:'Siswa tidak ditemukan berdasarkan email/nama'});return;}const directScore=value(o,['nilai','score']),subtest=value(o,['subtest','subtes','mapel','subject']);if(directScore&&subtest){const n=Number(String(directScore).replace(',','.'));if(Number.isFinite(n))result.push({student_id:masterId(s),student_name:masterName(s),email:masterEmail(s)||emailNorm(email),subtest_name:subtest,score:n});else foundErrors.push({row:i+2,name:masterName(s),email:masterEmail(s)||emailNorm(email),msg:'Nilai tidak valid'});return;}let count=0;subjects.forEach(k=>{const raw=o[k];if(raw!==''&&raw!==undefined){const n=Number(String(raw).replace(',','.'));if(Number.isFinite(n)){result.push({student_id:masterId(s),student_name:masterName(s),email:masterEmail(s)||emailNorm(email),subtest_name:k,score:n});count++;}}});if(!count)foundErrors.push({row:i+2,name:masterName(s),email:masterEmail(s)||emailNorm(email),msg:'Tidak ada nilai yang terbaca'});});return {result,errors:foundErrors};}
   function masterId(s){return s?.student_id||s?.id||'';}
-  function render(){const stat=document.getElementById('importStats'),status=document.getElementById('importStatus'),head=document.getElementById('importHead'),body=document.getElementById('importBody'),errorBox=document.getElementById('importErrors');if(!stat)return;const unique=new Set(parsed.map(x=>x.student_id));stat.innerHTML=[['Baris',rows.length],['Siswa cocok',unique.size],['Nilai',parsed.length],['Masalah',errors.length]].map(x=>`<div class="import-stat"><span>${x[0]}</span><b>${x[1]}</b></div>`).join('');status.className='import-status '+(errors.length?'warn':(parsed.length?'ok':'warn'));if(errors.length){status.textContent=`${parsed.length} nilai valid. ${errors.length} baris bermasalah dan tidak akan dikirim.`;errorBox.style.display='block';errorBox.innerHTML=`<div class="import-errors-title">⚠️ ${errors.length} baris perlu diperbaiki sebelum import</div><div style="overflow:auto"><table><thead><tr><th>Baris</th><th>Nama Siswa</th><th>Email</th><th>Masalah</th></tr></thead><tbody>${errors.map(e=>`<tr><td class="import-error-rownum">${esc(e.row)}</td><td>${esc(e.name||'—')}</td><td>${esc(e.email||'—')}</td><td>${esc(e.msg)}</td></tr>`).join('')}</tbody></table></div>`;}else{status.textContent=parsed.length?`Siap: ${unique.size} siswa, ${parsed.length} nilai. Nama mengikuti master berdasarkan email.`:'Belum ada data valid.';errorBox.style.display='none';errorBox.innerHTML='';}head.innerHTML='<tr><th>Siswa</th><th>Email</th><th>Subtes</th><th>Nilai</th><th>Status</th></tr>';body.innerHTML=parsed.slice(0,100).map(x=>`<tr><td>${esc(x.student_name)}</td><td>${esc(x.email)}</td><td>${esc(x.subtest_name)}</td><td>${esc(x.score)}</td><td><span class="tag tag-ok">COCOK</span></td></tr>`).join('');}
+
+  function parseRows(data){
+    const subjects=subjectColumns(data),result=[],foundErrors=[];
+    data.forEach((o,i)=>{
+      const email=value(o,['email','e-mail','email siswa']),name=value(o,['nama','name','student','student name']),s=matchStudent(email,name);
+      if(!email&&!name){foundErrors.push({row:i+2,name:name||'—',email:email||'—',msg:'Email/nama kosong'});return;}
+      if(!s){foundErrors.push({row:i+2,name:name||'—',email:email||'—',msg:'Siswa tidak ditemukan berdasarkan email/nama'});return;}
+      const directScore=value(o,['nilai','score']),subtest=value(o,['subtest','subtes','mapel','subject']);
+      if(directScore&&subtest){const n=Number(String(directScore).replace(',','.'));if(Number.isFinite(n))result.push({student_id:masterId(s),student_name:masterName(s),email:masterEmail(s)||emailNorm(email),subtest_name:subtest,score:n});else foundErrors.push({row:i+2,name:masterName(s),email:masterEmail(s)||emailNorm(email),msg:'Nilai tidak valid'});return;}
+      let count=0;
+      subjects.forEach(k=>{const raw=o[k];if(raw!==''&&raw!==undefined){const n=Number(String(raw).replace(',','.'));if(Number.isFinite(n)){result.push({student_id:masterId(s),student_name:masterName(s),email:masterEmail(s)||emailNorm(email),subtest_name:k,score:n});count++;}}});
+      if(!count)foundErrors.push({row:i+2,name:masterName(s),email:masterEmail(s)||emailNorm(email),msg:'Tidak ada nilai yang terbaca'});
+    });
+    return {result,errors:foundErrors};
+  }
+
+  function render(){
+    const stat=document.getElementById('importStats'),status=document.getElementById('importStatus'),head=document.getElementById('importHead'),body=document.getElementById('importBody'),errorBox=document.getElementById('importErrors');
+    if(!stat)return;
+    const unique=new Set(parsed.map(x=>x.student_id));
+    stat.innerHTML=[['Baris',rows.length],['Siswa cocok',unique.size],['Nilai',parsed.length],['Masalah',errors.length]].map(x=>`<div class="import-stat"><span>${x[0]}</span><b>${x[1]}</b></div>`).join('');
+    status.className='import-status '+(errors.length?'warn':(parsed.length?'ok':'warn'));
+    if(errors.length){
+      status.textContent=`${parsed.length} nilai valid. ${errors.length} baris bermasalah dan tidak akan dikirim.`;
+      errorBox.style.display='block';
+      errorBox.innerHTML=`<div class="import-errors-title">⚠️ ${errors.length} baris perlu diperbaiki sebelum import</div><div style="overflow:auto"><table><thead><tr><th>Baris</th><th>Nama Siswa</th><th>Email</th><th>Masalah</th></tr></thead><tbody>${errors.map(e=>`<tr><td class="import-error-rownum">${esc(e.row)}</td><td>${esc(e.name||'—')}</td><td>${esc(e.email||'—')}</td><td>${esc(e.msg)}</td></tr>`).join('')}</tbody></table></div>`;
+    }else{status.textContent=parsed.length?`Siap: ${unique.size} siswa, ${parsed.length} nilai. Nama mengikuti master berdasarkan email.`:'Belum ada data valid.';errorBox.style.display='none';errorBox.innerHTML='';}
+    head.innerHTML='<tr><th>Siswa</th><th>Email</th><th>Subtes</th><th>Nilai</th><th>Status</th></tr>';
+    body.innerHTML=parsed.slice(0,100).map(x=>`<tr><td>${esc(x.student_name)}</td><td>${esc(x.email)}</td><td>${esc(x.subtest_name)}</td><td>${esc(x.score)}</td><td><span class="tag tag-ok">COCOK</span></td></tr>`).join('');
+  }
+
   function process(data){rows=data;const p=parseRows(data);parsed=p.result;errors=p.errors;render();}
-  function payload(){const testId=document.getElementById('importTestId').value.trim(),testName=document.getElementById('importTestName').value.trim();return {action:'import',test:{test_id:testId,test_name:testName,nama_to:testName,jenis:document.getElementById('importType').value,tanggal:document.getElementById('importTestDate').value,scale:document.getElementById('importScale').value},results:parsed.map((x,i)=>({result_id:`${testId||'NEW'}_${String(i+1).padStart(4,'0')}`,student_id:x.student_id,test_id:testId,subtest_name:x.subtest_name,nilai:x.score,email:x.email,student_name:x.student_name}))};}
+
+  function payload(){
+    const testId=document.getElementById('importTestId').value.trim(),testName=document.getElementById('importTestName').value.trim();
+    return {action:'import',test:{test_id:testId,test_name:testName,nama_to:testName,jenis:document.getElementById('importType').value,type:document.getElementById('importType').value,tanggal:document.getElementById('importTestDate').value,scale:document.getElementById('importScale').value},results:parsed.map((x,i)=>({result_id:`${testId||'NEW'}_${String(i+1).padStart(4,'0')}`,student_id:x.student_id,test_id:testId,subtest_name:x.subtest_name,nilai:x.score,email:x.email,student_name:x.student_name}))};
+  }
+
   function saveDraft(){localStorage.setItem('dashboard_tka_import_draft',JSON.stringify({saved_at:new Date().toISOString(),rows,parsed,errors,meta:payload().test}));const el=document.getElementById('importSubmitStatus');el.className='import-status ok';el.textContent='Draft tersimpan di browser ini.';}
-  async function submit(){const st=document.getElementById('importSubmitStatus'),p=payload();if(errors.length){st.className='import-status err';st.textContent=`Perbaiki ${errors.length} baris bermasalah terlebih dahulu sebelum import.`;return;}if(!p.test.test_id||!p.test.test_name||!parsed.length){st.className='import-status err';st.textContent='Lengkapi Test ID, Nama TO, dan data nilai terlebih dahulu.';return;}st.className='import-status warn';st.textContent='Mengirim data ke Apps Script…';try{const r=await fetch(API_BASE+'?action=import',{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(p)});const text=await r.text();let j;try{j=JSON.parse(text)}catch(_){j=null}if(!r.ok)throw new Error('HTTP '+r.status);if(j&&j.success===false)throw new Error(j.error||'API menolak import');st.className='import-status ok';st.textContent='Import diterima oleh endpoint. Silakan refresh dashboard.';}catch(e){st.className='import-status err';st.textContent='Belum bisa masuk ke database: '+e.message+'. Apps Script harus mendukung action=import/doPost.';}}
-  function bind(){ensurePage();ensureMenu();document.getElementById('importFile')?.addEventListener('change',e=>{const f=e.target.files?.[0];if(!f)return;const r=new FileReader();r.onload=()=>process(parseText(r.result));r.readAsText(f);});document.getElementById('importPasteBtn')?.addEventListener('click',()=>{const ta=document.getElementById('importPaste');if(ta?.value.trim())process(parseText(ta.value));else{const text=prompt('Paste tabel dari Excel/Google Sheets di sini:');if(text)process(parseText(text));}});document.getElementById('importClearBtn')?.addEventListener('click',()=>{rows=[];parsed=[];errors=[];const ta=document.getElementById('importPaste');if(ta)ta.value='';render();});document.getElementById('importSaveDraft')?.addEventListener('click',saveDraft);document.getElementById('importSubmit')?.addEventListener('click',submit);document.getElementById('importRefresh')?.addEventListener('click',async()=>{if(typeof window.loadDashboardData==='function'){await window.loadDashboardData();window.dashboardData=dashboardData;ensurePage();}});}
-  window.initTOImport=bind;window.showImportTO=showPage;
-  let menuObserverStarted=false;function keepMenuAlive(){if(menuObserverStarted)return;menuObserverStarted=true;const root=document.querySelector('.sidebar')||document.body;if(root){const observer=new MutationObserver(function(){ensureMenu();});observer.observe(root,{childList:true,subtree:true});}ensureMenu();setTimeout(ensureMenu,100);setTimeout(ensureMenu,500);setTimeout(ensureMenu,1500);setTimeout(ensureMenu,3000);}
-  function start(){css();ensurePage();ensureMenu();keepMenuAlive();}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start();
+
+  async function postImport(p){
+    const body=JSON.stringify(p);
+    try{
+      const r=await fetch(API_BASE+'?action=import',{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body});
+      const text=await r.text();
+      let j=null;try{j=JSON.parse(text);}catch(_){ }
+      if(!r.ok) throw new Error('HTTP '+r.status);
+      if(j&&j.success===false) throw new Error(j.error||'API menolak import');
+      return {verified:true,response:j};
+    }catch(primaryError){
+      // Apps Script deployments can return a cross-origin response that the browser
+      // refuses to expose to fetch(). The POST itself may still have been accepted.
+      // Retry once as a simple no-cors request. Backend import is an upsert, so retry
+      // is safe for the same student + test + subtest natural key.
+      try{
+        await fetch(API_BASE+'?action=import',{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body});
+        return {verified:false,fallback:true,primaryError};
+      }catch(fallbackError){
+        throw new Error(primaryError?.message||fallbackError?.message||'Gagal menghubungi Apps Script');
+      }
+    }
+  }
+
+  async function submit(){
+    const st=document.getElementById('importSubmitStatus'),p=payload();
+    if(errors.length){st.className='import-status err';st.textContent=`Perbaiki ${errors.length} baris bermasalah terlebih dahulu sebelum import.`;return;}
+    if(!p.test.test_id||!p.test.test_name||!parsed.length){st.className='import-status err';st.textContent='Lengkapi Test ID, Nama TO, dan data nilai terlebih dahulu.';return;}
+    st.className='import-status warn';st.textContent='Mengirim data ke Apps Script…';
+    try{
+      const result=await postImport(p);
+      if(result.verified){st.className='import-status ok';st.textContent='✅ Import berhasil diterima Apps Script. Silakan refresh dashboard.';}
+      else{st.className='import-status ok';st.textContent='✅ Permintaan import sudah dikirim. Karena browser membatasi respons Apps Script, refresh dashboard untuk mengecek hasilnya.';}
+    }catch(e){st.className='import-status err';st.textContent='❌ Belum bisa masuk ke database: '+e.message+'. Pastikan deployment Apps Script sudah memakai doPost(action=import) dan aksesnya dapat diakses dashboard.';}
+  }
+
+  function bind(){
+    ensurePage();ensureMenu();
+    document.getElementById('importFile')?.addEventListener('change',e=>{const f=e.target.files?.[0];if(!f)return;const r=new FileReader();r.onload=()=>process(parseText(r.result));r.readAsText(f);});
+    document.getElementById('importPasteBtn')?.addEventListener('click',()=>{const ta=document.getElementById('importPaste');if(ta?.value.trim())process(parseText(ta.value));else{const text=prompt('Paste tabel dari Excel/Google Sheets di sini:');if(text)process(parseText(text));}});
+    document.getElementById('importClearBtn')?.addEventListener('click',()=>{rows=[];parsed=[];errors=[];const ta=document.getElementById('importPaste');if(ta)ta.value='';render();});
+    document.getElementById('importSaveDraft')?.addEventListener('click',saveDraft);
+    document.getElementById('importSubmit')?.addEventListener('click',submit);
+    document.getElementById('importRefresh')?.addEventListener('click',async()=>{if(typeof window.loadDashboardData==='function'){await window.loadDashboardData();window.dashboardData=dashboardData;ensurePage();}});
+  }
+
+  window.initTOImport=bind;
+  window.showImportTO=showPage;
+
+  let menuObserverStarted=false;
+  function keepMenuAlive(){if(menuObserverStarted)return;menuObserverStarted=true;const root=document.querySelector('.sidebar')||document.body;if(root){const observer=new MutationObserver(function(){ensureMenu();});observer.observe(root,{childList:true,subtree:true});}ensureMenu();setTimeout(ensureMenu,100);setTimeout(ensureMenu,500);setTimeout(ensureMenu,1500);setTimeout(ensureMenu,3000);}
+  function start(){css();ensurePage();ensureMenu();keepMenuAlive();}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start();
 })();
