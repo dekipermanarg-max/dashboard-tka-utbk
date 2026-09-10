@@ -13,82 +13,32 @@ const supabase=supabaseUrl&&supabaseKey?createClient(supabaseUrl,supabaseKey):nu
 type Parsed={headers:string[];rows:Record<string,string>[]}
 const TKA=['MAT','B.IND','ENG','MAT LANJ','B.IND LANJ','ENG LANJ','FIS','KIM','BIO','EKO','GEO','SOS','SEJ','PPKN']
 const UTBK=['PU','PPU','PBM','PK','LBI Saintek','LBI Soshum','LBE','PM']
-
 const cleanHeader=(v:any)=>String(v??'').replace(/^\uFEFF/,'').trim()
 const key=(v:any)=>cleanHeader(v).toLowerCase().replace(/\s+/g,' ')
 const get=(r:Record<string,string>,names:string[])=>{const map=new Map(Object.entries(r).map(([k,v])=>[key(k),String(v??'').trim()]));for(const n of names){const v=map.get(key(n));if(v)return v}return ''}
 function detect(headers:string[]){const h=headers.map(key);if(h.includes('nama event')&&h.includes('mat'))return 'TKA';if(h.includes('pu')&&h.includes('ppu')&&h.includes('pbm'))return 'UTBK';if((h.includes('nama siswa')||h.includes('nama'))&&h.includes('rombel')&&h.includes('mentor'))return 'MASTER SISWA';return 'UNKNOWN'}
-
-function parseFile(file:File,done:(p:Parsed)=>void){
- const ext=file.name.toLowerCase().split('.').pop()
- if(ext==='xlsx'||ext==='xls'){
-  const reader=new FileReader()
-  reader.onload=()=>{try{const wb=XLSX.read(reader.result,{type:'array'});const ws=wb.Sheets[wb.SheetNames[0]];const rows=XLSX.utils.sheet_to_json<Record<string,any>>(ws,{defval:'',raw:false});const headers=rows.length?Object.keys(rows[0]):[];done({headers,rows:rows.map(r=>Object.fromEntries(Object.entries(r).map(([k,v])=>[cleanHeader(k),String(v??'').trim()])))}):done({headers:[],rows:[]})}catch(e){throw e}}
-  reader.readAsArrayBuffer(file);return
- }
- Papa.parse<Record<string,string>>(file,{header:true,skipEmptyLines:true,complete:r=>{const headers=(r.meta.fields||[]).map(cleanHeader);done({headers,rows:r.data.map(x=>Object.fromEntries(Object.entries(x).map(([k,v])=>[cleanHeader(k),String(v??'').trim()])))})}})
-}
+function parseFile(file:File,done:(p:Parsed)=>void){const ext=file.name.toLowerCase().split('.').pop();if(ext==='xlsx'||ext==='xls'){const reader=new FileReader();reader.onload=()=>{try{const wb=XLSX.read(reader.result,{type:'array'});const ws=wb.Sheets[wb.SheetNames[0]];const rows=XLSX.utils.sheet_to_json<Record<string,any>>(ws,{defval:'',raw:false});const headers=rows.length?Object.keys(rows[0]).map(cleanHeader):[];done({headers,rows:rows.map(r=>Object.fromEntries(Object.entries(r).map(([k,v])=>[cleanHeader(k),String(v??'').trim()])))}); }catch(e){done({headers:[],rows:[]});}};reader.readAsArrayBuffer(file);return}Papa.parse<Record<string,string>>(file,{header:true,skipEmptyLines:true,complete:r=>{const headers=(r.meta.fields||[]).map(cleanHeader);done({headers,rows:r.data.map(x=>Object.fromEntries(Object.entries(x).map(([k,v])=>[cleanHeader(k),String(v??'').trim()])))})}})}
 
 export default function ImportPage(){
- const [parsed,setParsed]=useState<Parsed|null>(null)
- const [type,setType]=useState('')
- const [fileName,setFileName]=useState('')
- const [message,setMessage]=useState('')
- const [busy,setBusy]=useState(false)
- const [user,setUser]=useState<any>(null)
-
- useEffect(()=>{if(!supabase)return;s‍upabase.auth.getUser().then(({data})=>setUser(data.user));const {data}=supabase.auth.onAuthStateChange((_e,s)=>setUser(s?.user||null));return()=>data.subscription.unsubscribe()},[])
-
- const stats=useMemo(()=>{if(!parsed)return null;const emails=parsed.rows.map(r=>get(r,['Email','E-mail','Email Siswa'])).filter(Boolean).map(x=>x.toLowerCase());return{total:parsed.rows.length,unique:new Set(emails).size,duplicates:emails.length-new Set(emails).size}},[parsed])
-
- function handleFile(file:File){setMessage('');setFileName(file.name);try{parseFile(file,p=>{setParsed(p);setType(detect(p.headers));setMessage(p.rows.length?'Data berhasil dibaca. Silakan cek preview lalu Confirm Update.':'File kosong.')})}catch(e:any){setParsed(null);setMessage(`File gagal dibaca: ${e?.message||'format tidak valid'}`)}}
-
+ const [parsed,setParsed]=useState<Parsed|null>(null),[type,setType]=useState(''),[fileName,setFileName]=useState(''),[message,setMessage]=useState(''),[busy,setBusy]=useState(false),[user,setUser]=useState<any>(null)
+ useEffect(()=>{if(!supabase)return;supabase.auth.getUser().then(({data})=>setUser(data.user));const {data}=supabase.auth.onAuthStateChange((_e,s)=>setUser(s?.user||null));return()=>data.subscription.unsubscribe()},[])
+ const stats=useMemo(()=>{if(!parsed)return null;const emails=parsed.rows.map(r=>get(r,['Email','E-mail','Email Siswa'])).filter(Boolean).map(x=>x.toLowerCase());const unique=new Set(emails).size;return{total:parsed.rows.length,unique,duplicates:emails.length-unique}},[parsed])
+ function handleFile(file:File){setMessage('');setFileName(file.name);parseFile(file,p=>{setParsed(p);setType(detect(p.headers));setMessage(p.rows.length?'Data berhasil dibaca. Silakan cek preview lalu Confirm Update.':'File kosong atau tidak terbaca.')})}
+ async function recordBatch(import_type:string,total_rows:number,new_rows:number,changed_rows:number,same_rows:number,invalid_rows:number){const {error}=await supabase!.from('import_batches').insert({file_name:fileName||'import.csv',import_type,total_rows,new_rows,changed_rows,same_rows,invalid_rows,status:'completed'});if(error)throw error}
  async function confirm(){
-  if(!parsed||!supabase){setMessage('Supabase belum terhubung. Pasang environment variable terlebih dahulu.');return}
-  if(!user){setMessage('Silakan login terlebih dahulu untuk melakukan import.');return}
-  if(type==='UNKNOWN'){setMessage('Format file tidak dikenali.');return}
+  if(!parsed||!supabase){setMessage('Supabase belum terhubung. Pasang environment variable terlebih dahulu.');return}if(!user){setMessage('Silakan login terlebih dahulu untuk melakukan import.');return}if(type==='UNKNOWN'){setMessage('Format file tidak dikenali.');return}
   setBusy(true);setMessage('Memvalidasi dan menyimpan import…')
   try{
    if(type==='MASTER SISWA'){
     let newRows=0,changedRows=0,sameRows=0,invalidRows=0
-    for(const r of parsed.rows){
-     const email=get(r,['Email','E-mail']).toLowerCase(),name=get(r,['Nama Siswa','Nama','Name'])
-     if(!email||!name){invalidRows++;continue}
-     const {data:old,error:oldError}=await supabase.from('students').select('id,user_id,name,school,rombel,branch,mentor,role').eq('email',email).maybeSingle();if(oldError)throw oldError
-     const payload={email,user_id:get(r,['User ID'])||null,name,school:get(r,['Sekolah'])||null,rombel:get(r,['Rombel'])||null,branch:get(r,['Cabang'])||null,mentor:get(r,['Mentor'])||null,role:get(r,['Role'])||null,raw_data:r,updated_at:new Date().toISOString()}
-     const {error}=await supabase.from('students').upsert(payload,{onConflict:'email'});if(error)throw error
-     if(!old)newRows++;else if(['user_id','name','school','rombel','branch','mentor','role'].every(k=>String((old as any)[k]??'')===String((payload as any)[k]??'')))sameRows++;else changedRows++
-    }
-    await recordBatch(fileName,'MASTER SISWA',parsed.rows.length,newRows,changedRows,sameRows,invalidRows)
-    setMessage(`Import Master Siswa berhasil: ${newRows} baru, ${changedRows} berubah, ${sameRows} sama, ${invalidRows} invalid.`)
+    for(const r of parsed.rows){const email=get(r,['Email','E-mail']).toLowerCase(),name=get(r,['Nama Siswa','Nama','Name']);if(!email||!name){invalidRows++;continue}const {data:old,error:oldError}=await supabase.from('students').select('id,user_id,name,school,rombel,branch,mentor,role').eq('email',email).maybeSingle();if(oldError)throw oldError;const payload={email,user_id:get(r,['User ID'])||null,name,school:get(r,['Sekolah'])||null,rombel:get(r,['Rombel'])||null,branch:get(r,['Cabang'])||null,mentor:get(r,['Mentor'])||null,role:get(r,['Role'])||null,raw_data:r,updated_at:new Date().toISOString()};const {error}=await supabase.from('students').upsert(payload,{onConflict:'email'});if(error)throw error;if(!old)newRows++;else if(['user_id','name','school','rombel','branch','mentor','role'].every(k=>String((old as any)[k]??'')===String((payload as any)[k]??'')))sameRows++;else changedRows++}
+    await recordBatch('MASTER SISWA',parsed.rows.length,newRows,changedRows,sameRows,invalidRows);setMessage(`Import Master Siswa berhasil: ${newRows} baru, ${changedRows} berubah, ${sameRows} sama, ${invalidRows} invalid.`)
    }else{
-    const assessment_type=type
-    const eventNames=[...new Set(parsed.rows.map(r=>get(r,['Nama Event','Event'])).filter(Boolean))]
-    if(eventNames.length!==1)throw new Error('File harus berisi tepat satu Nama Event/TO.')
-    const event_name=eventNames[0]
-    const emails=[...new Set(parsed.rows.map(r=>get(r,['Email','E-mail','Email Siswa']).toLowerCase()).filter(Boolean))]
-    if(!emails.length)throw new Error('Tidak ada email siswa yang valid.')
-    const {data:students,error:studentError}=await supabase.from('students').select('id,email').in('email',emails);if(studentError)throw studentError
-    const studentMap=new Map((students||[]).map((s:any)=>[String(s.email||'').toLowerCase(),s]))
-    const {data:existing,error:existingError}=await supabase.from('assessments').select('id,email,student_id,scores,status,jenjang,branch').eq('assessment_type',assessment_type).eq('event_name',event_name).in('email',emails);if(existingError)throw existingError
-    const existingMap=new Map((existing||[]).map((a:any)=>[String(a.email||'').toLowerCase(),a]))
-    const scoreKeys=assessment_type==='TKA'?TKA:UTBK
-    let newRows=0,changedRows=0,sameRows=0,invalidRows=0
-    for(const r of parsed.rows){
-     const email=get(r,['Email','E-mail','Email Siswa']).toLowerCase(),student=studentMap.get(email);if(!email||!student){invalidRows++;continue}
-     const scores:Record<string,string>={};for(const k of scoreKeys){const v=get(r,[k]);if(v!=='')scores[k]=v}
-     if(!Object.keys(scores).length){invalidRows++;continue}
-     const payload={student_id:student.id,email,assessment_type,event_name,status:get(r,['Status','Status Mapel Wajib','Status Pengerjaan'])||null,jenjang:get(r,['Jenjang'])||null,branch:get(r,['Cabang'])||null,scores,raw_data:r}
-     const old=existingMap.get(email);const {error}=await supabase.from('assessments').upsert(payload,{onConflict:'email,assessment_type,event_name'});if(error)throw error
-     if(!old)newRows++;else if(JSON.stringify({student_id:old.student_id,status:old.status,jenjang:old.jenjang,branch:old.branch,scores:old.scores})===JSON.stringify({student_id:payload.student_id,status:payload.status,jenjang:payload.jenjang,branch:payload.branch,scores:payload.scores}))sameRows++;else changedRows++
-    }
-    await recordBatch(fileName,assessment_type,parsed.rows.length,newRows,changedRows,sameRows,invalidRows)
-    setMessage(`Import ${event_name} berhasil: ${newRows} baru, ${changedRows} berubah, ${sameRows} sama, ${invalidRows} invalid.`)
+    const assessment_type=type,eventNames=[...new Set(parsed.rows.map(r=>get(r,['Nama Event','Event'])).filter(Boolean))];if(eventNames.length!==1)throw new Error('File harus berisi tepat satu Nama Event/TO.');const event_name=eventNames[0];const emails=[...new Set(parsed.rows.map(r=>get(r,['Email','E-mail','Email Siswa']).toLowerCase()).filter(Boolean))];if(!emails.length)throw new Error('Tidak ada email siswa yang valid.');const {data:students,error:studentError}=await supabase.from('students').select('id,email').in('email',emails);if(studentError)throw studentError;const studentMap=new Map((students||[]).map((s:any)=>[String(s.email||'').toLowerCase(),s]));const {data:existing,error:existingError}=await supabase.from('assessments').select('id,email,student_id,scores,status,jenjang,branch').eq('assessment_type',assessment_type).eq('event_name',event_name).in('email',emails);if(existingError)throw existingError;const existingMap=new Map((existing||[]).map((a:any)=>[String(a.email||'').toLowerCase(),a]));const scoreKeys=assessment_type==='TKA'?TKA:UTBK;let newRows=0,changedRows=0,sameRows=0,invalidRows=0
+    for(const r of parsed.rows){const email=get(r,['Email','E-mail','Email Siswa']).toLowerCase(),student=studentMap.get(email);if(!email||!student){invalidRows++;continue}const scores:Record<string,string>={};for(const k of scoreKeys){const v=get(r,[k]);if(v!=='')scores[k]=v}if(!Object.keys(scores).length){invalidRows++;continue}const payload={student_id:student.id,email,assessment_type,event_name,status:get(r,['Status','Status Mapel Wajib','Status Pengerjaan'])||null,jenjang:get(r,['Jenjang'])||null,branch:get(r,['Cabang'])||null,scores,raw_data:r};const old=existingMap.get(email);const {error}=await supabase.from('assessments').upsert(payload,{onConflict:'email,assessment_type,event_name'});if(error)throw error;if(!old)newRows++;else if(JSON.stringify({student_id:old.student_id,status:old.status,jenjang:old.jenjang,branch:old.branch,scores:old.scores})===JSON.stringify({student_id:payload.student_id,status:payload.status,jenjang:payload.jenjang,branch:payload.branch,scores:payload.scores}))sameRows++;else changedRows++}
+    await recordBatch(assessment_type,parsed.rows.length,newRows,changedRows,sameRows,invalidRows);setMessage(`Import ${event_name} berhasil: ${newRows} baru, ${changedRows} berubah, ${sameRows} sama, ${invalidRows} invalid.`)
    }
   }catch(e:any){setMessage(`Import gagal: ${e?.message||'Unknown error'}`)}finally{setBusy(false)}
  }
-
- async function recordBatch(import_type:string,file_type:string,total_rows:number,new_rows:number,changed_rows:number,same_rows:number,invalid_rows:number){const {error}=await supabase!.from('import_batches').insert({file_name:file_type==='MASTER SISWA'?fileName||'master.csv':fileName||'import.csv',import_type,total_rows,new_rows,changed_rows,same_rows,invalid_rows,status:'completed'});if(error)throw error}
-
  return <div className="page"><header className="topbar"><div className="brand">TKA <span>×</span> UTBK</div><nav className="nav"><Link href="/">Dashboard</Link><Link className="active" href="/import">Import Data</Link><Link href="/login">Login</Link></nav></header><main className="main"><div className="hero"><div><div className="eyebrow">Data Pipeline</div><h1 className="title">Import Data</h1><p className="sub">Upload → validasi → preview → Confirm Update.</p></div></div><section className="panel"><div className="upload"><strong>Upload CSV, TSV, XLSX, atau XLS</strong><div><input type="file" accept=".csv,.tsv,.txt,.xlsx,.xls" onChange={e=>e.target.files?.[0]&&handleFile(e.target.files[0])}/></div></div>{!user&&<p className="sub" style={{marginTop:12}}>Login diperlukan sebelum data ditulis ke database.</p>}{parsed&&<><div className="cards" style={{marginTop:16}}><div className="card"><div className="label">Tipe</div><div className="value" style={{fontSize:20}}>{type}</div></div><div className="card"><div className="label">Total</div><div className="value">{stats?.total}</div></div><div className="card"><div className="label">Email unik</div><div className="value">{stats?.unique}</div></div><div className="card"><div className="label">Duplikat</div><div className="value">{stats?.duplicates}</div></div></div><div className="preview"><table className="table"><thead><tr>{parsed.headers.slice(0,10).map(h=><th key={h}>{h}</th>)}</tr></thead><tbody>{parsed.rows.slice(0,15).map((r,i)=><tr key={i}>{parsed.headers.slice(0,10).map(h=><td key={h}>{r[h]}</td>)}</tr>)}</tbody></table></div><div className="actions"><button className="btn primary" onClick={confirm} disabled={busy||type==='UNKNOWN'||!user}>{busy?'Mengimport…':'Confirm Update'}</button><button className="btn secondary" onClick={()=>{setParsed(null);setFileName('');setMessage('')}}>Reset</button></div>{message&&<p className="sub" style={{marginTop:14}}>{message}</p>}</>}</section></main></div>
 }
